@@ -24,7 +24,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.login_activity);
+        setContentView(R.layout.activity_login);
 
         progressBar = (ProgressBar) findViewById(R.id.progress_bar);
         progressText = (TextView) findViewById(R.id.progress_text);
