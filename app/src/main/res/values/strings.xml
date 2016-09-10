@@ -1,3 +1,18 @@
 <resources>
     <string name="app_name">Cashless</string>
+    <string name="login">Login</string>
+    <string name="password">Password</string>
+    <string name="login_button">Log In</string>
+    <string name="vendapp">VendApp</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="action_settings">Settings</string>
+    <string name="update_balance">Update Balance…</string>
+    <string name="logging_in">Logging In…</string>
+
+    <string name="see_my_transactions">See my transactions</string>
+    <string name="your_balance_is">Your balance is</string>
+    <string name="connect_to_machine">Connect to Machine</string>
+    <string name="nfc_button">NFC</string>
+    <string name="qr_code_button">QR CODE</string>
+    <string name="machine_series_button">machine series</string>
 </resources>
