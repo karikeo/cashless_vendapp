@@ -29,6 +29,12 @@ public abstract class ProgressBarActivity extends AppCompatActivity {
         content.addView(LayoutInflater.from(this).inflate(getLayoutId(), null));
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        showContent();
+    }
+
     protected abstract int getLayoutId();
 
     protected void showContent() {
