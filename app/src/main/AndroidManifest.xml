@@ -22,7 +22,8 @@
         </activity>
         <activity android:name=".ui.MainActivity" />
         <activity android:name=".ui.barcode.BarcodeCaptureActivity" />
-        <activity android:name=".ui.SuccessfulConnectActivity"></activity>
+        <activity android:name=".ui.SuccessfulConnectActivity" />
+        <activity android:name=".ui.ProgressBarActivity"></activity>
     </application>
 
 </manifest>

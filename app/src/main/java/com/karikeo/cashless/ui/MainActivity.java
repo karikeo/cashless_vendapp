@@ -2,9 +2,7 @@ package com.karikeo.cashless.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -13,23 +11,13 @@ import com.google.android.gms.vision.barcode.Barcode;
 import com.karikeo.cashless.R;
 import com.karikeo.cashless.ui.barcode.BarcodeCaptureActivity;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends ProgressBarActivity {
     private static final int RC_BARCODE_CAPTURE = 9001;
     private TextView balance;
-    private ProgressBar progressBar;
-    private TextView progressText;
-    private View content;
-    private View progress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        progressBar = (ProgressBar) findViewById(R.id.progress_bar);
-        progressText = (TextView) findViewById(R.id.progress_text);
-        content = findViewById(R.id.content);
-        progress = findViewById(R.id.progress);
 
         balance = (TextView) findViewById(R.id.balance);
         findViewById(R.id.qr_code_button).setOnClickListener(new View.OnClickListener() {
@@ -61,10 +49,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected int getLayoutId() {
+        return R.layout.activity_main;
+    }
+
     private void connect(String id) {
-        content.setVisibility(View.GONE);
-        progress.setVisibility(View.VISIBLE);
-        progressText.setText(R.string.connecting);
+        showProgress(R.string.connecting);
         balance.postDelayed(new Runnable() {
             @Override
             public void run() {

@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">Cashless</string>
+    <string name="empty"></string>
+
     <string name="login">Login</string>
     <string name="password">Password</string>
     <string name="login_button">Log In</string>
@@ -24,7 +26,7 @@
     <string name="barcode_success">Barcode read successfully</string>
     <string name="barcode_failure">No barcode captured</string>
     <string name="barcode_error">"Error reading barcode: %1$s"</string>
-    <string name="connecting">Connecting...</string>
+    <string name="connecting">Connecting…</string>
     <string name="balance">Balance</string>
     <string name="connected_to_machine">Connected to Machine</string>
     <string name="disconnect">Disconnect</string>
