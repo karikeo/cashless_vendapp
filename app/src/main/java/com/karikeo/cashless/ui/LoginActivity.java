@@ -36,6 +36,7 @@ public class LoginActivity extends ProgressBarActivity {
     }
 
     private void login(String login, String password) {
+        UIUtil.hideKeyboard(loginButton);
         showProgress(R.string.logging_in);
         loginButton.postDelayed(new Runnable() {
             @Override
