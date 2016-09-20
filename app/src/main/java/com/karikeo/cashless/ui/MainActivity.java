@@ -1,5 +1,7 @@
 package com.karikeo.cashless.ui;
 
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -9,11 +11,16 @@ import android.widget.Toast;
 import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.karikeo.cashless.R;
+import com.karikeo.cashless.bt.BTControl;
 import com.karikeo.cashless.ui.barcode.BarcodeCaptureActivity;
+
+import java.util.Set;
 
 public class MainActivity extends ProgressBarActivity {
     private static final int RC_BARCODE_CAPTURE = 9001;
     private TextView balance;
+
+    private BTControl btControl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +51,8 @@ public class MainActivity extends ProgressBarActivity {
                 Toast.makeText(this, String.format(getString(R.string.barcode_error),
                         CommonStatusCodes.getStatusCodeString(resultCode)), Toast.LENGTH_LONG).show();
             }
+        } else if (requestCode == BTControl.REQUEST_ENABLE_BT){
+                btControl
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
@@ -55,6 +64,7 @@ public class MainActivity extends ProgressBarActivity {
     }
 
     private void connect(String id) {
+/*
         showProgress(R.string.connecting);
         balance.postDelayed(new Runnable() {
             @Override
@@ -62,6 +72,15 @@ public class MainActivity extends ProgressBarActivity {
                 onConnect();
             }
         }, 2000);
+*/
+        if (!BluetoothAdapter.checkBluetoothAddress(id)){
+            //Oops wrong address.
+            return;
+        }
+
+        btControl = new BTControl(this, id);
+        btControl.openConnection();
+
     }
 
     public void onConnect() {
