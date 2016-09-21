@@ -12,7 +12,7 @@ import java.lang.reflect.Method;
 import java.util.UUID;
 
 
-public abstract class BTSerialSocket {
+public class BTSerialSocket {
     private final static int CONNECTION_ATTEMPTS = 5;
     private final static UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 

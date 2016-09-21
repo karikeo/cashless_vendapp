@@ -1,7 +1,7 @@
 package com.karikeo.cashless.ui;
 
+import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -52,7 +52,11 @@ public class MainActivity extends ProgressBarActivity {
                         CommonStatusCodes.getStatusCodeString(resultCode)), Toast.LENGTH_LONG).show();
             }
         } else if (requestCode == BTControl.REQUEST_ENABLE_BT){
-                btControl
+            if (requestCode == Activity.RESULT_CANCELED){
+                //TODO Show error. that we can't work without BT.
+            } else {
+                btControl.onDeviceEnabled();
+            }
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
@@ -78,7 +82,7 @@ public class MainActivity extends ProgressBarActivity {
             return;
         }
 
-        btControl = new BTControl(this, id);
+        btControl = BTControl.getInstance(this, id);
         btControl.openConnection();
 
     }
