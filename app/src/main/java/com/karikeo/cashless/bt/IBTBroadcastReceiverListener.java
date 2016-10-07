@@ -7,4 +7,7 @@ interface IBTBroadcastReceiverListener {
     void OnDiscoveryDeviceFound(BluetoothDevice device);
 
     void OnDiscoveryFinished();
+
+    void OnPairDone(BluetoothDevice device);
+    void OnPairError();
 }

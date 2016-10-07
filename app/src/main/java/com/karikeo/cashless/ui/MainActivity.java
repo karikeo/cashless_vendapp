@@ -39,7 +39,7 @@ public class MainActivity extends ProgressBarActivity {
         setDataFromModel();
 
         if (Constants.DEBUG != 0){
-            connect("03:F6:07:01:91:FE");
+            connect("10:14:07:10:29:10");
         }
 
     }

@@ -4,8 +4,11 @@ import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
+import android.util.Log;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 public class BTControl implements OnBTActions{
     public static final int REQUEST_ENABLE_BT = 0x922625;
@@ -20,9 +23,43 @@ public class BTControl implements OnBTActions{
 
     private IOnBTOpenPort actions;
 
+    private BlueToothBroadcastReceiver receiver;
+
     private BTControl(Activity activity, String btID){
         mActivity = activity;
         id = btID;
+
+        receiver = new BlueToothBroadcastReceiver(mActivity, new IBTBroadcastReceiverListener(){
+
+            @Override
+            public void OnDiscoveryDeviceFound(BluetoothDevice device) {
+                Log.d("BTDevice: ", device.getAddress());
+                if (device.getAddress().equals(id)){
+                    if (adapter.isDiscovering())
+                        adapter.cancelDiscovery();
+
+                    pairDevice(device);
+                }
+            }
+
+            @Override
+            public void OnDiscoveryFinished() {
+                /*receiver.unregister();*/
+            }
+
+            @Override
+            public void OnPairDone(BluetoothDevice device) {
+                Log.d("PAIRDONE", device.getAddress());
+                openSockets(device);
+                receiver.unregister();
+            }
+
+            @Override
+            public void OnPairError() {
+                receiver.unregister();
+                //Oops something wrong
+            }
+        });
     }
 
     public static synchronized BTControl getInstance(Activity activity, String btID){
@@ -63,28 +100,40 @@ public class BTControl implements OnBTActions{
             adapter.startDiscovery();
             return;
         }
-        openSockets(device);
+
+        pairDevice(device);
     }
 
-    private final BlueToothBroadcastReceiver receiver = new BlueToothBroadcastReceiver(mActivity, new IBTBroadcastReceiverListener(){
-
-        @Override
-        public void OnDiscoveryDeviceFound(BluetoothDevice device) {
-            if (device.getAddress().equals(id)){
-                if (adapter.isDiscovering())
-                    adapter.cancelDiscovery();
-
-                openSockets(device);
+    private void pairDevice(BluetoothDevice device){
+        if (device.getBondState() != BluetoothDevice.BOND_BONDED){
+            try{
+                Method method = device.getClass().getMethod("createBond", (Class[]) null);
+                method.invoke(device, (Object[]) null);
+                Log.d("CreateBOND", device.getAddress());
+            }catch (Exception e){
+                e.printStackTrace();
             }
+        }else{
+/*
+            try {
+                Method method = device.getClass().getMethod("removeBond", (Class[]) null);
+                method.invoke(device, (Object[]) null);
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            }
+*/
+            Log.d("OPEN SOCKETS", device.getAddress());
+            openSockets(device);
         }
+    }
 
-        @Override
-        public void OnDiscoveryFinished() {
-            receiver.unregister();
-        }
-    });
 
     private void openSockets(BluetoothDevice device) {
+
         socket = new BTSerialSocket(device);
         socket.openSocketsAsync(new IOnBTOpenPort() {
             @Override
@@ -112,6 +161,7 @@ public class BTControl implements OnBTActions{
     }
 
     public void sendBalance(int balance) throws IOException{
-        socket.write(("Balance:" + Integer.toString(balance)).getBytes());
+        socket.write(("BALANCE=" + Integer.toString(balance)).getBytes());
+        Log.d("BALANCE", Integer.toString(balance));
     }
 }

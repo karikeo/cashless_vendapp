@@ -1,12 +1,16 @@
 package com.karikeo.cashless.bt;
 
+import android.annotation.TargetApi;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.os.Build;
+import android.util.Log;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.UUID;
@@ -32,6 +36,7 @@ public class BTSerialSocket {
     public boolean openSockets(){
 
         if (mBTDevice.getBondState() != BluetoothDevice.BOND_BONDED){
+            Log.d("DISCONNECTED", "BOND ISSUE");
             return false;
         }
 
@@ -59,9 +64,11 @@ public class BTSerialSocket {
         }while(bufIn==null && bufOut==null && idx<=CONNECTION_ATTEMPTS);
 
         if (bufIn==null || bufOut==null){
+            Log.d("DISCONNECTED", "!!!");
             return false;
         }
 
+        Log.d("CONNECTED", "!!!");
         return true;
     }
 
@@ -102,16 +109,17 @@ public class BTSerialSocket {
         try {
             int currentApiVersion = android.os.Build.VERSION.SDK_INT;
             if (currentApiVersion > 10) {
+                //btSocket = mBTDevice.createInsecureRfcommSocketToServiceRecord(MY_UUID);
                 btSocket = mBTDevice.createRfcommSocketToServiceRecord(MY_UUID);
             } else {
                 BluetoothDevice hxm = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(mBTDevice.getAddress());
                 Method m = hxm.getClass().getMethod("createRfcommSocket", new Class[]{int.class});
                 btSocket = (BluetoothSocket) m.invoke(hxm, 1);
             }
-
-        } catch (IOException | InvocationTargetException | IllegalAccessException | NoSuchMethodException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
+
 
         return btSocket;
     }
