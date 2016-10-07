@@ -10,11 +10,13 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.vision.barcode.Barcode;
+import com.karikeo.cashless.Constants;
 import com.karikeo.cashless.R;
 import com.karikeo.cashless.bt.BTControl;
+import com.karikeo.cashless.bt.IOnBTOpenPort;
 import com.karikeo.cashless.ui.barcode.BarcodeCaptureActivity;
 
-import java.util.Set;
+import java.io.IOException;
 
 public class MainActivity extends ProgressBarActivity {
     private static final int RC_BARCODE_CAPTURE = 9001;
@@ -35,6 +37,11 @@ public class MainActivity extends ProgressBarActivity {
             }
         });
         setDataFromModel();
+
+        if (Constants.DEBUG != 0){
+            connect("03:F6:07:01:91:FE");
+        }
+
     }
 
     @Override
@@ -53,7 +60,7 @@ public class MainActivity extends ProgressBarActivity {
             }
         } else if (requestCode == BTControl.REQUEST_ENABLE_BT){
             if (requestCode == Activity.RESULT_CANCELED){
-                //TODO Show error. that we can't work without BT.
+                //TODO Show error. we can't work without BT.
             } else {
                 btControl.onDeviceEnabled();
             }
@@ -68,22 +75,29 @@ public class MainActivity extends ProgressBarActivity {
     }
 
     private void connect(String id) {
-/*
-        showProgress(R.string.connecting);
-        balance.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                onConnect();
-            }
-        }, 2000);
-*/
+
         if (!BluetoothAdapter.checkBluetoothAddress(id)){
             //Oops wrong address.
             return;
         }
 
         btControl = BTControl.getInstance(this, id);
-        btControl.openConnection();
+        btControl.openConnection(new IOnBTOpenPort() {
+            @Override
+            public void onBTOpenPortDone() {
+                try {
+                    btControl.sendBalance(1000);
+                }catch (IOException e){
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onBTOpenPortError() {
+                //TODO: add actions if something wrong with BT
+                btControl.close();
+            }
+        });
 
     }
 

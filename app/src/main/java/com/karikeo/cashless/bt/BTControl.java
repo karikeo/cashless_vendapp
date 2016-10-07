@@ -13,10 +13,12 @@ public class BTControl implements OnBTActions{
     private Activity mActivity;
     private static String id;
     private static BTControl control;
-    private BluetoothDevice device;
+
     private BluetoothAdapter adapter;
     private BTSerialSocket socket;
     private Communication com;
+
+    private IOnBTOpenPort actions;
 
     private BTControl(Activity activity, String btID){
         mActivity = activity;
@@ -31,7 +33,7 @@ public class BTControl implements OnBTActions{
 
         //Add code to check activity and btID if not equal
         //it means that something changed and we must close connection and re run.
-        if (id != btID){
+        if (!id.equals(btID)){
             //Ok we need new connection with new device, we need close correctly prev and create new one
             control.close();
             control = new BTControl(activity, id);
@@ -40,8 +42,9 @@ public class BTControl implements OnBTActions{
         return control;
     }
 
-    public void openConnection() {
+    public void openConnection(IOnBTOpenPort actions) {
         adapter = BluetoothAdapter.getDefaultAdapter();
+        this.actions = actions;
 
         if (!adapter.isEnabled()) {
             Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -54,7 +57,7 @@ public class BTControl implements OnBTActions{
 
     @Override
     public void onDeviceEnabled() {
-        device = adapter.getRemoteDevice(id);
+        BluetoothDevice device = adapter.getRemoteDevice(id);
         if (device.getBondState() != BluetoothDevice.BOND_BONDED){
             receiver.register();
             adapter.startDiscovery();
@@ -63,11 +66,11 @@ public class BTControl implements OnBTActions{
         openSockets(device);
     }
 
-    final BlueToothBroadcastReceiver receiver = new BlueToothBroadcastReceiver(mActivity, new IBTBroadcastReceiverListener(){
+    private final BlueToothBroadcastReceiver receiver = new BlueToothBroadcastReceiver(mActivity, new IBTBroadcastReceiverListener(){
 
         @Override
         public void OnDiscoveryDeviceFound(BluetoothDevice device) {
-            if (device.getAddress() == id){
+            if (device.getAddress().equals(id)){
                 if (adapter.isDiscovering())
                     adapter.cancelDiscovery();
 
@@ -87,11 +90,16 @@ public class BTControl implements OnBTActions{
             @Override
             public void onBTOpenPortDone() {
                 com = new Communication(socket);
+                if(actions!=null){
+                    actions.onBTOpenPortDone();
+                }
             }
 
             @Override
             public void onBTOpenPortError() {
-
+                if (actions!=null){
+                    actions.onBTOpenPortError();
+                }
             }
         });
     }
