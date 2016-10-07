@@ -48,7 +48,7 @@ public class BTSerialSocket {
             } catch (IOException e) {
                 e.printStackTrace();
 
-                //Try to do several attempts to connect device.
+                //Try to do several attempts to connect to device.
                 try {
                     Thread.sleep(500);
                 } catch (InterruptedException e1) {

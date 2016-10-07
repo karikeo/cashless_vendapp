@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.karikeo.cashless.Constants;
 import com.karikeo.cashless.R;
 
 public class LoginActivity extends ProgressBarActivity {
@@ -28,6 +29,9 @@ public class LoginActivity extends ProgressBarActivity {
                 login(login.getText().toString(), password.getText().toString());
             }
         });
+
+        if (Constants.DEBUG != 0)
+            onBalanceUpdated();
     }
 
     @Override

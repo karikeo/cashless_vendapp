@@ -7,7 +7,7 @@ import android.support.v4.util.CircularArray;
 import java.io.IOException;
 import java.util.Arrays;
 
-public abstract class Communication {
+public class Communication {
     private final static int B_SIZE = 1024;
 
     private BTSerialSocket btSocket;
