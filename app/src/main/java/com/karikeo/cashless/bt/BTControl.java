@@ -161,7 +161,12 @@ public class BTControl implements OnBTActions{
     }
 
     public void sendBalance(int balance) throws IOException{
-        socket.write(("BALANCE=" + Integer.toString(balance)).getBytes());
-        Log.d("BALANCE", Integer.toString(balance));
+        socket.write(("BALANCE=" + Integer.toString(balance)+"\r").getBytes());
+        Log.d("COMMAND", "BALANCE"+Integer.toString(balance));
+    }
+
+    public void sendCancel() throws IOException{
+        socket.write("CANCEL\r".getBytes());
+        Log.d("COMMAND", "CANCEL");
     }
 }

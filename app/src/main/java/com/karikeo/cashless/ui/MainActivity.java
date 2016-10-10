@@ -18,6 +18,8 @@ import com.karikeo.cashless.ui.barcode.BarcodeCaptureActivity;
 
 import java.io.IOException;
 
+import static android.os.SystemClock.sleep;
+
 public class MainActivity extends ProgressBarActivity {
     private static final int RC_BARCODE_CAPTURE = 9001;
     private TextView balance;
@@ -86,6 +88,8 @@ public class MainActivity extends ProgressBarActivity {
             @Override
             public void onBTOpenPortDone() {
                 try {
+                    btControl.sendCancel();
+                    sleep(300);
                     btControl.sendBalance(1000);
                 }catch (IOException e){
                     e.printStackTrace();
