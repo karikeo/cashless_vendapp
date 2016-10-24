@@ -26,13 +26,16 @@
         android:text="@string/your_balance_is"
         android:textSize="18sp" />
 
-    <TextView
+    <EditText
         android:id="@+id/balance"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:textSize="32sp"
         android:textStyle="bold"
+        android:inputType="number"
+        android:maxLines="1"
+        android:maxLength="4"
         tools:text="1000$" />
 
     <Button

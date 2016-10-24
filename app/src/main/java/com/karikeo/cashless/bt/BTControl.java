@@ -134,6 +134,11 @@ public class BTControl implements OnBTActions{
 
     private void openSockets(BluetoothDevice device) {
 
+        if (socket!=null) {
+            socket.closeSockets();
+            socket = null;
+        }
+
         socket = new BTSerialSocket(device);
         socket.openSocketsAsync(new IOnBTOpenPort() {
             @Override
