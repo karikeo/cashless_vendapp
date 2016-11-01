@@ -9,15 +9,17 @@ import java.io.IOException;
 import java.util.Arrays;
 
 public class Communication {
+    private final static String TAG = "com.karikeo.cashless.bt.Communication";
+
     private final static int B_SIZE = 1024;
 
-    private BTSerialSocket btSocket;
+    private BlueToothSerialSocket btSocket;
     protected final CircularArray<Byte> buf = new CircularArray<>();
 
     private boolean mStop = false;
 
 
-    public Communication(BTSerialSocket port) {
+    public Communication(BlueToothSerialSocket port) {
         btSocket = port;
         backgroundThread.start();
     }
@@ -69,7 +71,7 @@ public class Communication {
             byte[] d = msg.getData().getByteArray("Data");
             int length = msg.getData().getInt("Length");
 
-            Log.d("INCOME","Size:"+Integer.valueOf(length).toString()+" data:"+new String(d));
+            Log.d(TAG,"Income-Size:"+Integer.valueOf(length).toString()+" data:"+new String(d));
 
             if (d != null && length != 0) {
                 synchronized (buf) {
@@ -81,17 +83,6 @@ public class Communication {
             }
         }
     };
-
-    public static String bytesToStringUTFCustom(byte[] bytes) {
-        char[] buffer = new char[bytes.length >> 1];
-        for(int i = 0; i < buffer.length; i++) {
-            int bpos = i << 1;
-            char c = (char)(((bytes[bpos]&0x00FF)<<8) + (bytes[bpos+1]&0x00FF));
-            buffer[i] = c;
-        }
-        return new String(buffer);
-    }
-
 
     public void onInputData(){
         //Here should be parser of the protocol

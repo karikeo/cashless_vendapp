@@ -7,25 +7,25 @@ import android.content.Intent;
 import android.util.Log;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-public class BTControl implements OnBTActions{
+public class BlueToothControl implements IOnBTActions {
+    private static final String TAG = "com.karikeo.cashless.bt.BlueToothControl";
     public static final int REQUEST_ENABLE_BT = 0x922625;
 
     private Activity mActivity;
     private static String id;
-    private static BTControl control;
+    private static BlueToothControl control;
 
     private BluetoothAdapter adapter;
-    private BTSerialSocket socket;
+    private BlueToothSerialSocket socket;
     private Communication com;
 
     private IOnBTOpenPort actions;
 
     private BlueToothBroadcastReceiver receiver;
 
-    private BTControl(Activity activity, String btID){
+    private BlueToothControl(Activity activity, String btID){
         mActivity = activity;
         id = btID;
 
@@ -33,7 +33,7 @@ public class BTControl implements OnBTActions{
 
             @Override
             public void OnDiscoveryDeviceFound(BluetoothDevice device) {
-                Log.d("BTDevice: ", device.getAddress());
+                Log.d(TAG, "BTDevice: " + device.getAddress());
                 if (device.getAddress().equals(id)){
                     if (adapter.isDiscovering())
                         adapter.cancelDiscovery();
@@ -49,7 +49,7 @@ public class BTControl implements OnBTActions{
 
             @Override
             public void OnPairDone(BluetoothDevice device) {
-                Log.d("PAIRDONE", device.getAddress());
+                Log.d(TAG, "PAIRDONE " + device.getAddress());
                 openSockets(device);
                 receiver.unregister();
             }
@@ -62,9 +62,9 @@ public class BTControl implements OnBTActions{
         });
     }
 
-    public static synchronized BTControl getInstance(Activity activity, String btID){
+    public static synchronized BlueToothControl getInstance(Activity activity, String btID){
         if (control == null){
-            control = new BTControl(activity, btID);
+            control = new BlueToothControl(activity, btID);
             return control;
         }
 
@@ -73,7 +73,7 @@ public class BTControl implements OnBTActions{
         if (!id.equals(btID)){
             //Ok we need new connection with new device, we need close correctly prev and create new one
             control.close();
-            control = new BTControl(activity, id);
+            control = new BlueToothControl(activity, id);
         }
 
         return control;
@@ -109,7 +109,7 @@ public class BTControl implements OnBTActions{
             try{
                 Method method = device.getClass().getMethod("createBond", (Class[]) null);
                 method.invoke(device, (Object[]) null);
-                Log.d("CreateBOND", device.getAddress());
+                Log.d(TAG, "Create bond " + device.getAddress());
             }catch (Exception e){
                 e.printStackTrace();
             }
@@ -126,7 +126,7 @@ public class BTControl implements OnBTActions{
                 e.printStackTrace();
             }
 */
-            Log.d("OPEN SOCKETS", device.getAddress());
+            Log.d(TAG, "Open sockets: " + device.getAddress());
             openSockets(device);
         }
     }
@@ -139,7 +139,7 @@ public class BTControl implements OnBTActions{
             socket = null;
         }
 
-        socket = new BTSerialSocket(device);
+        socket = new BlueToothSerialSocket(device);
         socket.openSocketsAsync(new IOnBTOpenPort() {
             @Override
             public void onBTOpenPortDone() {
@@ -167,11 +167,11 @@ public class BTControl implements OnBTActions{
 
     public void sendBalance(int balance) throws IOException{
         socket.write(("BALANCE=" + Integer.toString(balance)+"\r").getBytes());
-        Log.d("COMMAND", "BALANCE"+Integer.toString(balance));
+        Log.d(TAG, "COMMAND=BALANCE="+Integer.toString(balance));
     }
 
     public void sendCancel() throws IOException{
         socket.write("CANCEL\r".getBytes());
-        Log.d("COMMAND", "CANCEL");
+        Log.d(TAG, "COMMAND=CANCEL");
     }
 }

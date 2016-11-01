@@ -17,7 +17,7 @@ import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.karikeo.cashless.Constants;
 import com.karikeo.cashless.R;
-import com.karikeo.cashless.bt.BTControl;
+import com.karikeo.cashless.bt.BlueToothControl;
 import com.karikeo.cashless.bt.IOnBTOpenPort;
 import com.karikeo.cashless.ui.barcode.BarcodeCaptureActivity;
 
@@ -37,7 +37,7 @@ public class MainActivity extends ProgressBarActivity {
 
     private EditText balance;
 
-    private BTControl btControl;
+    private BlueToothControl blueToothControl;
     private String qrCode;
 
     @Override
@@ -105,12 +105,12 @@ public class MainActivity extends ProgressBarActivity {
                 Toast.makeText(this, String.format(getString(R.string.barcode_error),
                         CommonStatusCodes.getStatusCodeString(resultCode)), Toast.LENGTH_LONG).show();
             }
-        } else if (requestCode == BTControl.REQUEST_ENABLE_BT){
+        } else if (requestCode == BlueToothControl.REQUEST_ENABLE_BT){
             if (requestCode == Activity.RESULT_CANCELED){
                 //TODO Show error. we can't work without BT.
                 Log.d(TAG, "onActivityResult: Can't work without BT");
             } else {
-                btControl.onDeviceEnabled();
+                blueToothControl.onDeviceEnabled();
             }
         } else {
             super.onActivityResult(requestCode, resultCode, data);
@@ -148,18 +148,18 @@ public class MainActivity extends ProgressBarActivity {
             return;
         }
 
-        btControl = BTControl.getInstance(this, id);
-        btControl.openConnection(new IOnBTOpenPort() {
+        blueToothControl = BlueToothControl.getInstance(this, id);
+        blueToothControl.openConnection(new IOnBTOpenPort() {
             @Override
             public void onBTOpenPortDone() {
                 try {
-                    btControl.sendCancel();
+                    blueToothControl.sendCancel();
                     sleep(1000);
                     if (Constants.DEBUG != 0) {
-                        btControl.sendBalance(500);
+                        blueToothControl.sendBalance(500);
                     }else {
                         final String s = balance.getText().toString().trim();
-                        btControl.sendBalance(Integer.parseInt(s));
+                        blueToothControl.sendBalance(Integer.parseInt(s));
                     }
                 }catch (IOException e){
                     e.printStackTrace();
@@ -170,7 +170,7 @@ public class MainActivity extends ProgressBarActivity {
             public void onBTOpenPortError() {
                 //TODO: add actions if something wrong with BT
                 Log.d(TAG, "onBTOpenPortError: Can't open BT port");
-                btControl.close();
+                blueToothControl.close();
             }
         });
 

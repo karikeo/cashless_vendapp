@@ -16,7 +16,9 @@ import java.lang.reflect.Method;
 import java.util.UUID;
 
 
-public class BTSerialSocket {
+public class BlueToothSerialSocket {
+    private final static String TAG = "com.karikeo.cashless.bt.BlueToothSerialSocket";
+
     private final static int CONNECTION_ATTEMPTS = 5;
     private final static UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
@@ -28,7 +30,7 @@ public class BTSerialSocket {
     private final BluetoothDevice mBTDevice;
 
 
-    public BTSerialSocket(BluetoothDevice device) {
+    public BlueToothSerialSocket(BluetoothDevice device) {
         mBTDevice = device;
     }
 
@@ -64,11 +66,11 @@ public class BTSerialSocket {
         }while(bufIn==null && bufOut==null && idx<=CONNECTION_ATTEMPTS);
 
         if (bufIn==null || bufOut==null){
-            Log.d("DISCONNECTED", "!!!");
+            Log.d(TAG, "Disconnected from " + mBTDevice.getAddress());
             return false;
         }
 
-        Log.d("CONNECTED", "!!!");
+        Log.d(TAG, "Connected to " + mBTDevice.getAddress());
         return true;
     }
 
