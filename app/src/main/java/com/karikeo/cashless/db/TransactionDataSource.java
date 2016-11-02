@@ -19,7 +19,7 @@ public class TransactionDataSource {
             TransactionsSQLHelper.COLUMN_TRANSACTION_TYPE,
             TransactionsSQLHelper.COLUMN_MACADDR,
             TransactionsSQLHelper.COLUMN_DATE,
-            TransactionsSQLHelper.COLUMN_BALANCEDELTA};
+            TransactionsSQLHelper.COLUMN_BALANCE_DELTA};
 
 
     public TransactionDataSource(Context context){
@@ -38,7 +38,7 @@ public class TransactionDataSource {
         ContentValues values = new ContentValues();
 
         values.put(TransactionsSQLHelper.COLUMN_TRANSACTION_TYPE, tType);
-        values.put(TransactionsSQLHelper.COLUMN_BALANCEDELTA, balanceDelta);
+        values.put(TransactionsSQLHelper.COLUMN_BALANCE_DELTA, balanceDelta);
         values.put(TransactionsSQLHelper.COLUMN_MACADDR, macAddr);
         values.put(TransactionsSQLHelper.COLUMN_DATE, Integer.toString(Calendar.getInstance().get(Calendar.SECOND)));
 

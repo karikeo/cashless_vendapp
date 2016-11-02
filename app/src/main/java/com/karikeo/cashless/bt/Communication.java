@@ -5,12 +5,15 @@ import android.os.Handler;
 import android.support.v4.util.CircularArray;
 import android.util.Log;
 
+import com.karikeo.cashless.ctrl.MessageListenerRegistryImpl;
+
 import java.io.IOException;
 import java.util.Arrays;
 
 public class Communication {
     private final static String TAG = "com.karikeo.cashless.bt.Communication";
 
+    private final static byte MESSAGE_DELIMITER = 0x10;
     private final static int B_SIZE = 1024;
 
     private BlueToothSerialSocket btSocket;
@@ -85,8 +88,15 @@ public class Communication {
     };
 
     public void onInputData(){
-        //Here should be parser of the protocol
-        //Log.d("INCOME", buf.toString());
+        for (int i = 0; i<buf.size(); i++){
+            if (buf.get(i) == MESSAGE_DELIMITER){
+                byte b[] = new byte[i];
+                for (int k = 0; k<i; k++){
+                    b[k] = buf.popFirst();
+                }
+                MessageListenerRegistryImpl.getInstance().onMessage(new String(b));
+            }
+        }
     }
 
     public void write(byte[] data) throws IOException{
