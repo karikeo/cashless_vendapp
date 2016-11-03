@@ -343,6 +343,7 @@ public final class BarcodeCaptureActivity extends AppCompatActivity {
                 Intent data = new Intent();
                 data.putExtra(BarcodeObject, barcode);
                 setResult(CommonStatusCodes.SUCCESS, data);
+                Log.d(TAG, "SCANNED=" + barcode.displayValue);
                 finish();
             }
             else {

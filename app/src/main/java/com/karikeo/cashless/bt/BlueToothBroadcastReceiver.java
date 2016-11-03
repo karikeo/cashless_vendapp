@@ -2,6 +2,7 @@ package com.karikeo.cashless.bt;
 
 
 import android.app.Activity;
+import android.app.Application;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
@@ -19,7 +20,7 @@ public class BlueToothBroadcastReceiver extends BroadcastReceiver {
     IBTBroadcastReceiverListener listener;
     Context tContext;
 
-    public BlueToothBroadcastReceiver(Activity a, IBTBroadcastReceiverListener l) {
+    public BlueToothBroadcastReceiver(Application a, IBTBroadcastReceiverListener l) {
         tContext = a.getApplicationContext();
         listener = l;
     }

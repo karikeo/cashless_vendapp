@@ -4,14 +4,14 @@ package com.karikeo.cashless.db;
 public class Transaction {
     private long id;
     private String type;
-    private String macAddr;
+    private String macAddress;
     private String date;
     private String balanceDelta;
+    private boolean status;
 
     public long getId() {
         return id;
     }
-
     public void setId(long id) {
         this.id = id;
     }
@@ -19,23 +19,20 @@ public class Transaction {
     public String getType() {
         return type;
     }
-
     public void setType(String type) {
         this.type = type;
     }
 
-    public String getMacAddr() {
-        return macAddr;
+    public String getMacAddress() {
+        return macAddress;
     }
-
-    public void setMacAddr(String macAddr) {
-        this.macAddr = macAddr;
+    public void setMacAddress(String macAddress) {
+        this.macAddress = macAddress;
     }
 
     public String getDate() {
         return date;
     }
-
     public void setDate(String date) {
         this.date = date;
     }
@@ -43,8 +40,11 @@ public class Transaction {
     public String getBalanceDelta() {
         return balanceDelta;
     }
-
     public void setBalanceDelta(String balanceDelta) {
         this.balanceDelta = balanceDelta;
     }
+
+
+    public void setStatus(boolean ok){status = ok;}
+    public boolean getStatus(){return status;}
 }

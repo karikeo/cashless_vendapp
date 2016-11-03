@@ -15,15 +15,21 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.vision.barcode.Barcode;
+import com.karikeo.cashless.CashlessApplication;
 import com.karikeo.cashless.Constants;
 import com.karikeo.cashless.R;
 import com.karikeo.cashless.bt.BlueToothControl;
-import com.karikeo.cashless.bt.IOnBTOpenPort;
+import com.karikeo.cashless.bt.BTOpenPortStatus;
+import com.karikeo.cashless.bt.CommInterface;
+import com.karikeo.cashless.bt.OutputStream;
+import com.karikeo.cashless.db.Transaction;
+import com.karikeo.cashless.protocol.CoderDecoderInterface;
+import com.karikeo.cashless.protocol.CoderDecoderInterfaceImpl;
+import com.karikeo.cashless.protocol.CommandInterface;
+import com.karikeo.cashless.protocol.CommandInterfaceImpl;
 import com.karikeo.cashless.ui.barcode.BarcodeCaptureActivity;
 
-import java.io.IOException;
 
-import static android.os.SystemClock.sleep;
 
 public class MainActivity extends ProgressBarActivity {
     private final static String TAG = "MainActivity";
@@ -37,7 +43,7 @@ public class MainActivity extends ProgressBarActivity {
 
     private EditText balance;
 
-    private BlueToothControl blueToothControl;
+    private CommInterface blueToothControl;
     private String qrCode;
 
     @Override
@@ -58,6 +64,34 @@ public class MainActivity extends ProgressBarActivity {
             }
         });
         setDataFromModel();
+
+        blueToothControl = ((CashlessApplication)getApplication()).getCommInterface();
+        if (blueToothControl == null){
+            blueToothControl = new BlueToothControl(getApplication());
+            ((CashlessApplication)getApplication()).setCommInterface(blueToothControl);
+        }
+
+        CommandInterface comm  = ((CashlessApplication)getApplication()).getCommandInterface();
+        if (comm == null){
+            comm = new CommandInterfaceImpl();
+            ((CashlessApplication)getApplication()).setCommandInterface(comm);
+        }
+
+        CoderDecoderInterface cd = ((CashlessApplication)getApplication()).getCoderDecoderInterface();
+        if (cd == null){
+            cd = new CoderDecoderInterfaceImpl();
+            ((CashlessApplication)getApplication()).setCoderDecoderInterface(cd);
+        }
+
+        //Setup Download chain
+        cd.addOutputStream((OutputStream)blueToothControl);
+        comm.addOutputStream((OutputStream)cd);
+
+        //Setup Upload chain
+        blueToothControl.
+
+
+
 
         if (Constants.DEBUG != 0){
             connect("10:14:07:10:29:10");
@@ -85,8 +119,6 @@ public class MainActivity extends ProgressBarActivity {
             if (resultCode == CommonStatusCodes.SUCCESS) {
                 if (data != null) {
                     Barcode barcode = data.getParcelableExtra(BarcodeCaptureActivity.BarcodeObject);
-                    Log.d("SCANNED", barcode.displayValue);
-
                     qrCode = barcode.displayValue;
 
                     if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH)
@@ -107,8 +139,7 @@ public class MainActivity extends ProgressBarActivity {
             }
         } else if (requestCode == BlueToothControl.REQUEST_ENABLE_BT){
             if (requestCode == Activity.RESULT_CANCELED){
-                //TODO Show error. we can't work without BT.
-                Log.d(TAG, "onActivityResult: Can't work without BT");
+                Log.d(TAG, "onActivityResult: Can't work without BlueTooth");
             } else {
                 blueToothControl.onDeviceEnabled();
             }
@@ -127,7 +158,7 @@ public class MainActivity extends ProgressBarActivity {
         }else if(requestCode == PM_BT_PERMISSION_REQUEST){
             if (grantResults.length == 2 && grantResults[0] == PackageManager.PERMISSION_GRANTED
                     && grantResults[1] == PackageManager.PERMISSION_GRANTED){
-                Log.d(TAG, "onRequestPermissionsResult: BT granted");
+                Log.d(TAG, "onRequestPermissionsResult: BlueTooth granted");
                 connect(qrCode);
             }
         }else {
@@ -148,31 +179,36 @@ public class MainActivity extends ProgressBarActivity {
             return;
         }
 
-        blueToothControl = BlueToothControl.getInstance(this, id);
-        blueToothControl.openConnection(new IOnBTOpenPort() {
-            @Override
-            public void onBTOpenPortDone() {
-                try {
-                    blueToothControl.sendCancel();
-                    sleep(1000);
-                    if (Constants.DEBUG != 0) {
-                        blueToothControl.sendBalance(500);
-                    }else {
-                        final String s = balance.getText().toString().trim();
-                        blueToothControl.sendBalance(Integer.parseInt(s));
+        if (blueToothControl.isConnected() == false) {
+            blueToothControl.addAsyncResponseListener(new BTOpenPortStatus() {
+                @Override
+                public void onBTOpenPortDone() {
+                    /*
+                    try {
+                        blueToothControl.sendCancel();
+                        sleep(1000);
+                        if (Constants.DEBUG != 0) {
+                            blueToothControl.sendBalance(500);
+                        } else {
+                            final String s = balance.getText().toString().trim();
+                            blueToothControl.sendBalance(Integer.parseInt(s));
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-                }catch (IOException e){
-                    e.printStackTrace();
+*/
                 }
-            }
 
-            @Override
-            public void onBTOpenPortError() {
-                //TODO: add actions if something wrong with BT
-                Log.d(TAG, "onBTOpenPortError: Can't open BT port");
-                blueToothControl.close();
-            }
-        });
+                @Override
+                public void onBTOpenPortError() {
+                    //TODO: add actions if something wrong with BT
+                    Log.d(TAG, "onBTOpenPortError: Can't open BlueTooth port");
+                    blueToothControl.closeConnection();
+                }
+            });
+
+            blueToothControl.openConnection(MainActivity.this, id);
+        }
 
     }
 

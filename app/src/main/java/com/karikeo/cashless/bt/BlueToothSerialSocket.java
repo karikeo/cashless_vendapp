@@ -1,17 +1,13 @@
 package com.karikeo.cashless.bt;
 
-import android.annotation.TargetApi;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.os.Build;
 import android.util.Log;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.UUID;
 
@@ -126,7 +122,7 @@ public class BlueToothSerialSocket {
         return btSocket;
     }
 
-    public void openSocketsAsync(final IOnBTOpenPort callback){
+    public void openSocketsAsync(final BTOpenPortStatus callback){
         new Thread(new Runnable() {
             @Override
             public void run() {

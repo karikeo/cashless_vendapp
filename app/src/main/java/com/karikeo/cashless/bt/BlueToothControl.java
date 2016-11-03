@@ -1,36 +1,36 @@
 package com.karikeo.cashless.bt;
 
 import android.app.Activity;
+import android.app.Application;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.util.Log;
 
-import java.io.IOException;
+import java.io.*;
 import java.lang.reflect.Method;
 
-public class BlueToothControl implements IOnBTActions {
+public class BlueToothControl implements CommInterface, OutputStream {
     private static final String TAG = "com.karikeo.cashless.bt.BlueToothControl";
     public static final int REQUEST_ENABLE_BT = 0x922625;
 
-    private Activity mActivity;
-    private static String id;
-    private static BlueToothControl control;
+    private String id;
+    private BlueToothControl control;
+    private boolean isConnected = false;
 
     private BluetoothAdapter adapter;
     private BlueToothSerialSocket socket;
     private Communication com;
 
-    private IOnBTOpenPort actions;
+    private BTOpenPortStatus openPortStatus;
 
     private BlueToothBroadcastReceiver receiver;
 
-    private BlueToothControl(Activity activity, String btID){
-        mActivity = activity;
-        id = btID;
+    private InputStream inputStream;
 
-        receiver = new BlueToothBroadcastReceiver(mActivity, new IBTBroadcastReceiverListener(){
+    public BlueToothControl(Application app){
 
+        receiver = new BlueToothBroadcastReceiver(app, new IBTBroadcastReceiverListener(){
             @Override
             public void OnDiscoveryDeviceFound(BluetoothDevice device) {
                 Log.d(TAG, "BTDevice: " + device.getAddress());
@@ -44,7 +44,6 @@ public class BlueToothControl implements IOnBTActions {
 
             @Override
             public void OnDiscoveryFinished() {
-                /*receiver.unregister();*/
             }
 
             @Override
@@ -62,35 +61,53 @@ public class BlueToothControl implements IOnBTActions {
         });
     }
 
-    public static synchronized BlueToothControl getInstance(Activity activity, String btID){
-        if (control == null){
-            control = new BlueToothControl(activity, btID);
-            return control;
+    @Override
+    public void openConnection(Activity activity, String id) {
+        if (!checkId(id)){
+            //Generate error;
+            return;
         }
 
-        //Add code to check activity and btID if not equal
-        //it means that something changed and we must close connection and re run.
-        if (!id.equals(btID)){
-            //Ok we need new connection with new device, we need close correctly prev and create new one
-            control.close();
-            control = new BlueToothControl(activity, id);
-        }
-
-        return control;
-    }
-
-    public void openConnection(IOnBTOpenPort actions) {
         adapter = BluetoothAdapter.getDefaultAdapter();
-        this.actions = actions;
 
         if (!adapter.isEnabled()) {
             Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            mActivity.startActivityForResult(intent, REQUEST_ENABLE_BT);
+            activity.startActivityForResult(intent, REQUEST_ENABLE_BT);
             return;
         }
 
         onDeviceEnabled();
     }
+
+    @Override
+    public void closeConnection() {
+        if (com != null){
+            com.setStop(true);
+        }
+        socket.closeSockets();
+        isConnected = false;
+    }
+
+    @Override
+    public boolean isConnected() {
+        return isConnected;
+    }
+
+    @Override
+    public boolean checkId(String id) {
+        return adapter.checkBluetoothAddress(id);
+    }
+
+    @Override
+    public void addDataListener() {
+
+    }
+
+    @Override
+    public void addAsyncResponseListener(BTOpenPortStatus actions) {
+        this.openPortStatus = actions;
+    }
+
 
     @Override
     public void onDeviceEnabled() {
@@ -100,7 +117,6 @@ public class BlueToothControl implements IOnBTActions {
             adapter.startDiscovery();
             return;
         }
-
         pairDevice(device);
     }
 
@@ -114,18 +130,6 @@ public class BlueToothControl implements IOnBTActions {
                 e.printStackTrace();
             }
         }else{
-/*
-            try {
-                Method method = device.getClass().getMethod("removeBond", (Class[]) null);
-                method.invoke(device, (Object[]) null);
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            } catch (InvocationTargetException e) {
-                e.printStackTrace();
-            } catch (NoSuchMethodException e) {
-                e.printStackTrace();
-            }
-*/
             Log.d(TAG, "Open sockets: " + device.getAddress());
             openSockets(device);
         }
@@ -140,38 +144,36 @@ public class BlueToothControl implements IOnBTActions {
         }
 
         socket = new BlueToothSerialSocket(device);
-        socket.openSocketsAsync(new IOnBTOpenPort() {
+        socket.openSocketsAsync(new BTOpenPortStatus() {
             @Override
             public void onBTOpenPortDone() {
                 com = new Communication(socket);
-                if(actions!=null){
-                    actions.onBTOpenPortDone();
+                if(openPortStatus !=null){
+                    isConnected = true;
+                    com.registerReceiver(inputStream);
+                    openPortStatus.onBTOpenPortDone();
                 }
             }
 
             @Override
             public void onBTOpenPortError() {
-                if (actions!=null){
-                    actions.onBTOpenPortError();
+                if (openPortStatus !=null){
+                    isConnected = false;
+                    openPortStatus.onBTOpenPortError();
                 }
             }
         });
     }
 
-    public void close(){
-        if (com != null){
-            com.setStop(true);
+    @Override
+    public void write(byte[] b) throws IOException {
+        if (isConnected){
+            socket.write(b);
         }
-        socket.closeSockets();
     }
 
-    public void sendBalance(int balance) throws IOException{
-        socket.write(("BALANCE=" + Integer.toString(balance)+"\r").getBytes());
-        Log.d(TAG, "COMMAND=BALANCE="+Integer.toString(balance));
+    public void registerReceiver(InputStream is){
+        inputStream = is;
     }
 
-    public void sendCancel() throws IOException{
-        socket.write("CANCEL\r".getBytes());
-        Log.d(TAG, "COMMAND=CANCEL");
-    }
 }

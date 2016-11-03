@@ -66,7 +66,7 @@ public class TransactionDataSource {
         Transaction t = new Transaction();
         t.setId(cursor.getLong(0));
         t.setType(cursor.getString(1));
-        t.setMacAddr(cursor.getString(2));
+        t.setMacAddress(cursor.getString(2));
         t.setDate(cursor.getString(3));
         t.setBalanceDelta(cursor.getString(4));
 

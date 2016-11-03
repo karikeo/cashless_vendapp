@@ -5,8 +5,6 @@ import android.os.Handler;
 import android.support.v4.util.CircularArray;
 import android.util.Log;
 
-import com.karikeo.cashless.ctrl.MessageListenerRegistryImpl;
-
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -94,7 +92,9 @@ public class Communication {
                 for (int k = 0; k<i; k++){
                     b[k] = buf.popFirst();
                 }
-                MessageListenerRegistryImpl.getInstance().onMessage(new String(b));
+                if (os!= null){
+                    os.upload(b);
+                }
             }
         }
     }
@@ -102,5 +102,10 @@ public class Communication {
     public void write(byte[] data) throws IOException{
         //pack outgoing message
         btSocket.write(data);
+    }
+
+    private InputStream os;
+    public void registerReceiver(InputStream os){
+        this.os = os;
     }
 }
