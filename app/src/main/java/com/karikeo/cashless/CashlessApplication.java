@@ -27,6 +27,8 @@ public class CashlessApplication extends Application{
     public CommandInterface getCommandInterface(){return command;}
     public void setCommandInterface(CommandInterface comm){command = comm;}
 
+    public DBInterface
+
 
     @Override
     public void onTerminate() {

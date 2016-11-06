@@ -10,11 +10,6 @@ public interface CommandInterface {
     void sendBalance(int i);
     void sendCancel();
 
-    void registerListener(OnMessage listener);
+    void registerOnMessageListener(CommandInterfaceImpl.OnMessage listener);
     void addOutputStream(OutputStream stream);
-
-    interface OnMessage{
-        void OnMessage(Transaction t);
-    }
-
 }

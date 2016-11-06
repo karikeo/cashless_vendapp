@@ -92,8 +92,8 @@ public class Communication {
                 for (int k = 0; k<i; k++){
                     b[k] = buf.popFirst();
                 }
-                if (os!= null){
-                    os.upload(b);
+                if (callback != null){
+                    callback.onRawData(b);
                 }
             }
         }
@@ -104,8 +104,13 @@ public class Communication {
         btSocket.write(data);
     }
 
-    private InputStream os;
-    public void registerReceiver(InputStream os){
-        this.os = os;
+
+    public interface DataCallback{
+        void onRawData(byte[] b);
+    }
+
+    private DataCallback callback;
+    public void registerReceiver(DataCallback callback){
+        this.callback = callback;
     }
 }

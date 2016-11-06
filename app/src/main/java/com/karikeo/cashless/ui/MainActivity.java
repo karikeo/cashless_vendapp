@@ -21,6 +21,8 @@ import com.karikeo.cashless.R;
 import com.karikeo.cashless.bt.BlueToothControl;
 import com.karikeo.cashless.bt.BTOpenPortStatus;
 import com.karikeo.cashless.bt.CommInterface;
+import com.karikeo.cashless.bt.Communication;
+import com.karikeo.cashless.bt.InputStream;
 import com.karikeo.cashless.bt.OutputStream;
 import com.karikeo.cashless.db.Transaction;
 import com.karikeo.cashless.protocol.CoderDecoderInterface;
@@ -88,15 +90,18 @@ public class MainActivity extends ProgressBarActivity {
         comm.addOutputStream((OutputStream)cd);
 
         //Setup Upload chain
-        blueToothControl.
-
-
-
+        blueToothControl.registerOnRawData((Communication.DataCallback) cd);
+        cd.registerOnPacketListener((CommandInterfaceImpl)comm);
+        comm.registerOnMessageListener(new CommandInterfaceImpl.OnMessage() {
+            @Override
+            public void onMessage(Transaction t) {
+                //Main Input from commands
+            }
+        });
 
         if (Constants.DEBUG != 0){
             connect("10:14:07:10:29:10");
         }
-
     }
 
     private void cameraPermissionRequest() {

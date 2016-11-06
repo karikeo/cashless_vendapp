@@ -11,5 +11,5 @@ public interface CoderDecoderInterface {
     void decode(String src);
 
     void addOutputStream(OutputStream oStream);
-    void addOnDataListener(CoderDecoderInterfaceImpl.OnMessage msg);
+    void registerOnPacketListener(CoderDecoderInterfaceImpl.OnPacket msg);
 }

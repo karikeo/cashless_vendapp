@@ -3,6 +3,7 @@ package com.karikeo.cashless.protocol;
 
 import android.util.Log;
 
+import com.karikeo.cashless.bt.Communication;
 import com.karikeo.cashless.bt.OutputStream;
 import com.karikeo.cashless.db.Transaction;
 
@@ -12,19 +13,26 @@ import java.util.Calendar;
 
 
 //This class is one more layer in case we need to add transport information like CRC ID and so one.
-public class CoderDecoderInterfaceImpl implements CoderDecoderInterface, OutputStream{
+public class CoderDecoderInterfaceImpl implements CoderDecoderInterface, Communication.DataCallback{
     private static final String TAG = "com.karikeo.cashless.protocol.CoderDecoderInterfaceImpl";
-
+/*
     @Override
     public void write(byte[] b) throws IOException {
         code(new String(b));
     }
-
-    public interface OnMessage{
-        void OnMessage(Transaction message);
+*/
+    @Override
+    public void onRawData(byte[] b) {
+        if(receiver!= null){
+            receiver.OnPacket(new String(b));
+        }
     }
 
-    OnMessage receiver;
+    public interface OnPacket{
+        void OnPacket(String message);
+    }
+
+    OnPacket receiver;
 
     private static final String MESSAGE_DIVIDER = "\n";
     private static final String FIELDS_DIVIDER = ",";
@@ -42,7 +50,7 @@ public class CoderDecoderInterfaceImpl implements CoderDecoderInterface, OutputS
 
     @Override
     public void decode(String src) {
-
+/*
         Transaction t = new Transaction();
 
         t.setStatus(false);
@@ -66,6 +74,10 @@ public class CoderDecoderInterfaceImpl implements CoderDecoderInterface, OutputS
         t.setBalanceDelta(parts[3]);
 
         sendMessage(t);
+*/
+        if (receiver!= null){
+            receiver.OnPacket(src);
+        }
     }
 
     @Override
@@ -73,14 +85,9 @@ public class CoderDecoderInterfaceImpl implements CoderDecoderInterface, OutputS
         stream = oStream;
     }
 
-    private void sendMessage(Transaction t) {
-        if (receiver != null){
-            receiver.OnMessage(t);
-        }
+    @Override
+    public void registerOnPacketListener(OnPacket msg) {
+        receiver = msg;
     }
 
-    @Override
-    public void addOnDataListener(OnMessage reciver) {
-        this.receiver = reciver;
-    }
 }

@@ -11,7 +11,7 @@ import java.io.*;
 import java.lang.reflect.Method;
 
 public class BlueToothControl implements CommInterface, OutputStream {
-    private static final String TAG = "com.karikeo.cashless.bt.BlueToothControl";
+    private static final String TAG = "BlueToothControl";
     public static final int REQUEST_ENABLE_BT = 0x922625;
 
     private String id;
@@ -25,8 +25,6 @@ public class BlueToothControl implements CommInterface, OutputStream {
     private BTOpenPortStatus openPortStatus;
 
     private BlueToothBroadcastReceiver receiver;
-
-    private InputStream inputStream;
 
     public BlueToothControl(Application app){
 
@@ -98,10 +96,12 @@ public class BlueToothControl implements CommInterface, OutputStream {
         return adapter.checkBluetoothAddress(id);
     }
 
+    private Communication.DataCallback callback;
     @Override
-    public void addDataListener() {
-
+    public void registerOnRawData(Communication.DataCallback callback) {
+        this.callback = callback;
     }
+
 
     @Override
     public void addAsyncResponseListener(BTOpenPortStatus actions) {
@@ -150,7 +150,7 @@ public class BlueToothControl implements CommInterface, OutputStream {
                 com = new Communication(socket);
                 if(openPortStatus !=null){
                     isConnected = true;
-                    com.registerReceiver(inputStream);
+                    com.registerReceiver(callback);
                     openPortStatus.onBTOpenPortDone();
                 }
             }
@@ -170,10 +170,6 @@ public class BlueToothControl implements CommInterface, OutputStream {
         if (isConnected){
             socket.write(b);
         }
-    }
-
-    public void registerReceiver(InputStream is){
-        inputStream = is;
     }
 
 }
