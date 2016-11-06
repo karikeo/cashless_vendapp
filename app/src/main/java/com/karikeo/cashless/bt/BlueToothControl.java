@@ -92,6 +92,11 @@ public class BlueToothControl implements CommInterface, OutputStream {
     }
 
     @Override
+    public String getId() {
+        return id;
+    }
+
+    @Override
     public boolean checkId(String id) {
         return adapter.checkBluetoothAddress(id);
     }

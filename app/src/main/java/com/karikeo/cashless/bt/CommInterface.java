@@ -6,6 +6,7 @@ public interface CommInterface extends IOnBTActions {
     void openConnection(Activity activity, String id);
     void closeConnection();
     boolean isConnected();
+    String getId();
 
     boolean checkId(String id);
 

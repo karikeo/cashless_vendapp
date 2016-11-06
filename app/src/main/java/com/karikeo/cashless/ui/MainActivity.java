@@ -22,9 +22,9 @@ import com.karikeo.cashless.bt.BlueToothControl;
 import com.karikeo.cashless.bt.BTOpenPortStatus;
 import com.karikeo.cashless.bt.CommInterface;
 import com.karikeo.cashless.bt.Communication;
-import com.karikeo.cashless.bt.InputStream;
 import com.karikeo.cashless.bt.OutputStream;
 import com.karikeo.cashless.db.Transaction;
+import com.karikeo.cashless.db.TransactionDataSource;
 import com.karikeo.cashless.protocol.CoderDecoderInterface;
 import com.karikeo.cashless.protocol.CoderDecoderInterfaceImpl;
 import com.karikeo.cashless.protocol.CommandInterface;
@@ -47,6 +47,9 @@ public class MainActivity extends ProgressBarActivity {
 
     private CommInterface blueToothControl;
     private String qrCode;
+
+
+    private int currentBalance = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +88,12 @@ public class MainActivity extends ProgressBarActivity {
             ((CashlessApplication)getApplication()).setCoderDecoderInterface(cd);
         }
 
+        TransactionDataSource db = ((CashlessApplication)getApplication()).getDbAccess();
+        if (db == null){
+            db = new TransactionDataSource(getApplication().getApplicationContext());
+            ((CashlessApplication)getApplication()).setTranscationAccess(db);
+        }
+
         //Setup Download chain
         cd.addOutputStream((OutputStream)blueToothControl);
         comm.addOutputStream((OutputStream)cd);
@@ -92,16 +101,39 @@ public class MainActivity extends ProgressBarActivity {
         //Setup Upload chain
         blueToothControl.registerOnRawData((Communication.DataCallback) cd);
         cd.registerOnPacketListener((CommandInterfaceImpl)comm);
+
+        final TransactionDataSource finalDb = db;
         comm.registerOnMessageListener(new CommandInterfaceImpl.OnMessage() {
             @Override
             public void onMessage(Transaction t) {
-                //Main Input from commands
+                finalDb.open();
+                Transaction tr = finalDb.createTransaction(t.getType(), t.getBalanceDelta(), blueToothControl.getId());
+                finalDb.close();
+
+                updateBalance(tr);
             }
         });
 
         if (Constants.DEBUG != 0){
+            currentBalance = 100;
             connect("10:14:07:10:29:10");
         }
+    }
+
+    private void updateBalance(Transaction tr){
+        String balanceUpdate = tr.getBalanceDelta();
+        currentBalance -= Integer.decode(balanceUpdate);
+        if (currentBalance < 0){
+            currentBalance = 0;
+        }
+
+        updateBalanceOnTarget(currentBalance);
+    }
+
+    private void updateBalanceOnTarget(int i){
+        CommandInterface comm  = ((CashlessApplication)getApplication()).getCommandInterface();
+        comm.sendCancel();
+        comm.sendBalance(currentBalance);
     }
 
     private void cameraPermissionRequest() {
@@ -188,20 +220,7 @@ public class MainActivity extends ProgressBarActivity {
             blueToothControl.addAsyncResponseListener(new BTOpenPortStatus() {
                 @Override
                 public void onBTOpenPortDone() {
-                    /*
-                    try {
-                        blueToothControl.sendCancel();
-                        sleep(1000);
-                        if (Constants.DEBUG != 0) {
-                            blueToothControl.sendBalance(500);
-                        } else {
-                            final String s = balance.getText().toString().trim();
-                            blueToothControl.sendBalance(Integer.parseInt(s));
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-*/
+                    updateBalanceOnTarget(currentBalance);
                 }
 
                 @Override
