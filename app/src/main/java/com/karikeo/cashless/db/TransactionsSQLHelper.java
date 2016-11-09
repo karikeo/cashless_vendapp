@@ -21,13 +21,14 @@ public class TransactionsSQLHelper extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
 
     // Database creation sql statement
-    private static final String DATABASE_CREATE = "create table "
+    private static final String DATABASE_CREATE = "CREATE TABLE IF NOT EXISTS "
             + TABLE_TRANSACTION + "( " +
-            COLUMN_ID + " integer primary key autoincrement, " +
-            COLUMN_TRANSACTION_TYPE + " text not null, " +
-            COLUMN_MACADDR + " text not null, " +
-            COLUMN_DATE + " text not null, " +
-            COLUMN_BALANCE_DELTA + " text not null);";
+            COLUMN_ID + " INT AUTO_INCREMENT, " +
+            "PRIMARY KEY("+COLUMN_ID+"), " +
+            COLUMN_TRANSACTION_TYPE + " TEXT NOT NULL, " +
+            COLUMN_MACADDR + " TEXT NOT NULL, " +
+            COLUMN_DATE + " TEXT NOT NULL, " +
+            COLUMN_BALANCE_DELTA + " TEXT NOT NULL);";
 
     public TransactionsSQLHelper(Context context){
         super(context, DATABASE_NAME, null, DATABASE_VERSION);

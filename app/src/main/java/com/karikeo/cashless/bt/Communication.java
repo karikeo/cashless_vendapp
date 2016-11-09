@@ -11,7 +11,7 @@ import java.util.Arrays;
 public class Communication {
     private final static String TAG = "com.karikeo.cashless.bt.Communication";
 
-    private final static byte MESSAGE_DELIMITER = 0x10;
+    private final static byte MESSAGE_DELIMITER = '\n';
     private final static int B_SIZE = 1024;
 
     private BlueToothSerialSocket btSocket;

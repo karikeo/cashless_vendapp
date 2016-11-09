@@ -66,6 +66,8 @@ public class BlueToothControl implements CommInterface, OutputStream {
             return;
         }
 
+        this.id = id;
+
         adapter = BluetoothAdapter.getDefaultAdapter();
 
         if (!adapter.isEnabled()) {

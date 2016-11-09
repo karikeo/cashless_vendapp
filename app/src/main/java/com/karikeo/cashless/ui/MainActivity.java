@@ -96,7 +96,7 @@ public class MainActivity extends ProgressBarActivity {
 
         //Setup Download chain
         cd.addOutputStream((OutputStream)blueToothControl);
-        comm.addOutputStream((OutputStream)cd);
+        comm.addOutputStream((OutputStream)((CoderDecoderInterfaceImpl)cd));
 
         //Setup Upload chain
         blueToothControl.registerOnRawData((Communication.DataCallback) cd);
@@ -115,7 +115,7 @@ public class MainActivity extends ProgressBarActivity {
         });
 
         if (Constants.DEBUG != 0){
-            currentBalance = 100;
+            currentBalance = 1234;
             connect("10:14:07:10:29:10");
         }
     }
@@ -133,6 +133,11 @@ public class MainActivity extends ProgressBarActivity {
     private void updateBalanceOnTarget(int i){
         CommandInterface comm  = ((CashlessApplication)getApplication()).getCommandInterface();
         comm.sendCancel();
+        try {
+            Thread.sleep(500);
+        }catch (Exception e){
+
+        }
         comm.sendBalance(currentBalance);
     }
 
