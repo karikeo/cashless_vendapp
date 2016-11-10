@@ -108,7 +108,7 @@ public class MainActivity extends ProgressBarActivity {
             public void onMessage(Transaction t) {
                 finalDb.open();
                 Transaction tr = finalDb.createTransaction(t.getType(), t.getBalanceDelta(), blueToothControl.getId());
-                finalDb.close();
+                //finalDb.close();
 
                 updateBalance(tr);
             }
@@ -121,13 +121,19 @@ public class MainActivity extends ProgressBarActivity {
     }
 
     private void updateBalance(Transaction tr){
-        String balanceUpdate = tr.getBalanceDelta();
-        currentBalance -= Integer.decode(balanceUpdate);
+        currentBalance -= ((CashlessApplication)getApplication()).getDbAccess().getBalanceDeltaFromAllTransactions();
         if (currentBalance < 0){
             currentBalance = 0;
         }
 
         updateBalanceOnTarget(currentBalance);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        ((CashlessApplication)getApplication()).getDbAccess().close();
     }
 
     private void updateBalanceOnTarget(int i){

@@ -60,6 +60,20 @@ public class TransactionDataSource {
         return  newTransaction;
     }
 
+    public int getBalanceDeltaFromAllTransactions(){
+        int ret = 0;
+
+        Cursor cursor = database.query(TransactionsSQLHelper.TABLE_TRANSACTION, allColumns, null, null, null, null, null);
+        cursor.moveToFirst();
+
+        while (!cursor.isLast()){
+            ret += Integer.decode(cursor.getString(4));
+            cursor.moveToNext();
+        }
+
+        return ret;
+    }
+
     public void deleteTransaction(Transaction transaction){
         long id = transaction.getId();
         Log.w(TAG, "delete with id=" + Long.toString(id));
