@@ -12,7 +12,7 @@ public class TransactionsSQLHelper extends SQLiteOpenHelper {
 
     public static final String TABLE_TRANSACTION = "transactions";
     public static final String COLUMN_ID = "_id";
-    public static final String COLUMN_TRANSACTION_TYPE = "transaction";
+    public static final String COLUMN_TRANSACTION_TYPE = "trans";
     public static final String COLUMN_MACADDR = "mac_addr";
     public static final String COLUMN_DATE = "date";
     public static final String COLUMN_BALANCE_DELTA = "balance_delta";
@@ -23,12 +23,12 @@ public class TransactionsSQLHelper extends SQLiteOpenHelper {
     // Database creation sql statement
     private static final String DATABASE_CREATE = "CREATE TABLE IF NOT EXISTS "
             + TABLE_TRANSACTION + "( " +
-            COLUMN_ID + " INT AUTO_INCREMENT, " +
-            "PRIMARY KEY("+COLUMN_ID+"), " +
-            COLUMN_TRANSACTION_TYPE + " TEXT NOT NULL, " +
-            COLUMN_MACADDR + " TEXT NOT NULL, " +
-            COLUMN_DATE + " TEXT NOT NULL, " +
-            COLUMN_BALANCE_DELTA + " TEXT NOT NULL);";
+            COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+            COLUMN_TRANSACTION_TYPE + " TEXT NOT NULL , " +
+            COLUMN_MACADDR + " TEXT NOT NULL , " +
+            COLUMN_DATE + " TEXT NOT NULL , " +
+            COLUMN_BALANCE_DELTA + " TEXT NOT NULL" +
+            ");";
 
     public TransactionsSQLHelper(Context context){
         super(context, DATABASE_NAME, null, DATABASE_VERSION);

@@ -44,6 +44,11 @@ public class TransactionDataSource {
 
         long insertId = database.insert(TransactionsSQLHelper.TABLE_TRANSACTION, null, values);
 
+        if (insertId == -1){
+            Log.e(TAG, "Can't insert Transaction.");
+            return null;
+        }
+
         Log.w(TAG, "Create with id=" + Long.toString(insertId));
 
         Cursor cursor = database.query(TransactionsSQLHelper.TABLE_TRANSACTION, allColumns,
