@@ -115,7 +115,7 @@ public class MainActivity extends ProgressBarActivity {
         });
 
         if (Constants.DEBUG != 0){
-            currentBalance = 1234;
+            currentBalance = 10002;
             connect("10:14:07:10:29:10");
         }
     }
@@ -125,6 +125,8 @@ public class MainActivity extends ProgressBarActivity {
         if (currentBalance < 0){
             currentBalance = 0;
         }
+
+        Log.d(TAG, "updateBalance: " + String.valueOf(currentBalance));
 
         updateBalanceOnTarget(currentBalance);
     }
@@ -243,6 +245,8 @@ public class MainActivity extends ProgressBarActivity {
             });
 
             blueToothControl.openConnection(MainActivity.this, id);
+        }else{
+            updateBalanceOnTarget(currentBalance);
         }
 
     }

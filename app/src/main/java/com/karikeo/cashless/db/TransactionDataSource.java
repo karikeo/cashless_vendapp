@@ -64,7 +64,8 @@ public class TransactionDataSource {
         Cursor cursor = null;
         String sum = "0";
         try {
-            cursor = database.rawQuery("SELECT SUM(?) FROM ?", new String[]{TransactionsSQLHelper.COLUMN_BALANCE_DELTA, TransactionsSQLHelper.TABLE_TRANSACTION});
+            //cursor = database.rawQuery("SELECT SUM(?) FROM ?", new String[]{TransactionsSQLHelper.COLUMN_BALANCE_DELTA, TransactionsSQLHelper.TABLE_TRANSACTION});
+            cursor = database.rawQuery("SELECT SUM(" + TransactionsSQLHelper.COLUMN_BALANCE_DELTA + ") FROM " + TransactionsSQLHelper.TABLE_TRANSACTION, new String[]{});
             if (cursor.getCount() > 0) {
                 cursor.moveToFirst();
                 sum = cursor.getString(0);

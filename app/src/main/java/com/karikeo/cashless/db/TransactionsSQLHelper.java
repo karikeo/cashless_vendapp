@@ -43,7 +43,7 @@ public class TransactionsSQLHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         Log.w(TAG, "Upgrading from version " + oldVersion + " to " + newVersion + ", destroy old data");
 
-        db.execSQL("DROP TABLE IF EXISTS" + TABLE_TRANSACTION);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_TRANSACTION);
         onCreate(db);
     }
 }
