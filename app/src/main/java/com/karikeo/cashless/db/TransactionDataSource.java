@@ -38,7 +38,7 @@ public class TransactionDataSource {
         ContentValues values = new ContentValues();
 
         values.put(TransactionsSQLHelper.COLUMN_TRANSACTION_TYPE, tType);
-        values.put(TransactionsSQLHelper.COLUMN_BALANCE_DELTA, balanceDelta);
+        values.put(TransactionsSQLHelper.COLUMN_BALANCE_DELTA, Integer.valueOf(balanceDelta));
         values.put(TransactionsSQLHelper.COLUMN_MACADDR, macAddr);
         values.put(TransactionsSQLHelper.COLUMN_DATE, Integer.toString(Calendar.getInstance().get(Calendar.SECOND)));
 
@@ -61,17 +61,22 @@ public class TransactionDataSource {
     }
 
     public int getBalanceDeltaFromAllTransactions(){
-        int ret = 0;
-
-        Cursor cursor = database.query(TransactionsSQLHelper.TABLE_TRANSACTION, allColumns, null, null, null, null, null);
-        cursor.moveToFirst();
-
-        while (!cursor.isLast()){
-            ret += Integer.decode(cursor.getString(4));
-            cursor.moveToNext();
+        Cursor cursor = null;
+        String sum = "0";
+        try {
+            cursor = database.rawQuery("SELECT SUM(?) FROM ?", new String[]{TransactionsSQLHelper.COLUMN_BALANCE_DELTA, TransactionsSQLHelper.TABLE_TRANSACTION});
+            if (cursor.getCount() > 0) {
+                cursor.moveToFirst();
+                sum = cursor.getString(0);
+            }
+        }
+        finally {
+            if (cursor != null){
+                cursor.close();
+            }
         }
 
-        return ret;
+        return Integer.decode(sum);
     }
 
     public void deleteTransaction(Transaction transaction){
