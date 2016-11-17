@@ -20,6 +20,7 @@ public class LoginActivity extends ProgressBarActivity {
     private Button loginButton;
 
     private String balance = "0";
+    private String email;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -46,14 +47,15 @@ public class LoginActivity extends ProgressBarActivity {
         return R.layout.activity_login;
     }
 
-    private void login(String login, String password) {
+    private void login(final String login, String password) {
         UIUtil.hideKeyboard(loginButton);
         showProgress(R.string.logging_in);
 
         AsyncGetBalance b = new AsyncGetBalance(login, password, new OnAsyncServerRequest() {
             @Override
-            public void OnOk(String param) {
-                balance = param;
+            public void OnOk(Bundle bundle) {
+                balance = bundle.getString(PropertyFields.BALANCE);
+                email = login;
                 onLogin();
             }
 
@@ -82,6 +84,7 @@ public class LoginActivity extends ProgressBarActivity {
     public void onBalanceUpdated() {
         Bundle b = new Bundle();
         b.putString(PropertyFields.BALANCE,  balance);
+        b.putString(PropertyFields.EMAIL, email);
 
         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
         intent.putExtras(b);

@@ -8,6 +8,7 @@ public class Transaction {
     private String date;
     private String balanceDelta;
     private boolean status;
+    private String email;
 
     public long getId() {
         return id;
@@ -44,6 +45,13 @@ public class Transaction {
         this.balanceDelta = balanceDelta;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
     public void setStatus(boolean ok){status = ok;}
     public boolean getStatus(){return status;}

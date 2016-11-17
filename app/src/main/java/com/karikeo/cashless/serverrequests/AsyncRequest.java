@@ -24,6 +24,8 @@ abstract class AsyncRequest {
     protected static final String NAMESPACE = "http://badplanet.ddns.net/";
     protected static final String URL = "http://badplanet.ddns.net:11307/WebService.asmx";
 
+    static final String STATUS = "status";
+
 
     protected OnAsyncServerRequest listener;
 

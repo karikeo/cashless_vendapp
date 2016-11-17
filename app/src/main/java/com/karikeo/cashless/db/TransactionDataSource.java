@@ -19,7 +19,8 @@ public class TransactionDataSource {
             TransactionsSQLHelper.COLUMN_TRANSACTION_TYPE,
             TransactionsSQLHelper.COLUMN_MACADDR,
             TransactionsSQLHelper.COLUMN_DATE,
-            TransactionsSQLHelper.COLUMN_BALANCE_DELTA};
+            TransactionsSQLHelper.COLUMN_BALANCE_DELTA,
+            TransactionsSQLHelper.COLUMN_EMAIL};
 
 
     public TransactionDataSource(Context context){
@@ -34,13 +35,14 @@ public class TransactionDataSource {
         dbHelper.close();
     }
 
-    public Transaction createTransaction(final String tType, final String balanceDelta, final String macAddr){
+    public Transaction createTransaction(final String tType, final String balanceDelta, final String macAddr, String email){
         ContentValues values = new ContentValues();
 
         values.put(TransactionsSQLHelper.COLUMN_TRANSACTION_TYPE, tType);
         values.put(TransactionsSQLHelper.COLUMN_BALANCE_DELTA, Integer.valueOf(balanceDelta));
         values.put(TransactionsSQLHelper.COLUMN_MACADDR, macAddr);
         values.put(TransactionsSQLHelper.COLUMN_DATE, Integer.toString(Calendar.getInstance().get(Calendar.SECOND)));
+        values.put(TransactionsSQLHelper.COLUMN_EMAIL, email);
 
         long insertId = database.insert(TransactionsSQLHelper.TABLE_TRANSACTION, null, values);
 
@@ -72,12 +74,43 @@ public class TransactionDataSource {
             }
         }
         finally {
-            if (cursor != null){
-                cursor.close();
-            }
+            closeCursor(cursor);
         }
 
         return Float.valueOf(sum);
+    }
+
+    public Transaction[] getTransactions(){
+        Transaction[] transactions = null;
+        Cursor cursor = null;
+        try{
+            cursor = database.rawQuery("SELECT ALL FROM "+ TransactionsSQLHelper.TABLE_TRANSACTION, new String[]{});
+
+            final int num = cursor.getCount();
+
+            if ( num == 0){
+                closeCursor(cursor);
+                return transactions;
+            }
+
+            transactions = new Transaction[num];
+
+            for (int i = 0; i<num; i++){
+                cursor.moveToPosition(i);
+                transactions[i] = cursorToTransaction(cursor);
+            }
+
+        }finally {
+            closeCursor(cursor);
+        }
+
+        return transactions;
+    }
+
+    private void closeCursor(Cursor cursor) {
+        if (cursor!=null){
+            cursor.close();
+        }
     }
 
     public void deleteTransaction(Transaction transaction){
@@ -94,6 +127,7 @@ public class TransactionDataSource {
         t.setMacAddress(cursor.getString(2));
         t.setDate(cursor.getString(3));
         t.setBalanceDelta(cursor.getString(4));
+        t.setEmail(cursor.getString(5));
 
         return t;
     }

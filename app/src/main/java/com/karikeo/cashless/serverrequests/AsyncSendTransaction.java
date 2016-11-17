@@ -3,31 +3,33 @@ package com.karikeo.cashless.serverrequests;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.karikeo.cashless.db.Transaction;
+
 import java.util.Map;
 
 
-public class AsyncGetBalance extends AsyncRequest{
+public class AsyncSendTransaction extends AsyncRequest {
 
     private static final String TAG = "AsyncGetBalance";
-    private static final String METHOD_NAME = "GetSaldoActualizado";
-/*
-    private static final String LOGIN = "email";
-    private static final String PWD = "password";
-*/
-    private String name;
-    private String pwd;
+    private static final String METHOD_NAME = "NewTransaction";
 
-    public AsyncGetBalance(String login, String pwd, OnAsyncServerRequest request){
+    private Transaction transaction;
+
+    public final static String TRANSACTION = "transaction";
+
+
+    public AsyncSendTransaction(Transaction t, OnAsyncServerRequest request) {
         super(METHOD_NAME);
-        this.name = login;
-        this.pwd = pwd;
         listener = request;
+        transaction = t;
     }
+
 
     @Override
     protected void onExecute(Map<String, String> key_value) {
-        key_value.put(PropertyFields.EMAIL, name);
-        key_value.put(PropertyFields.PWD, pwd);
+        key_value.put(PropertyFields.EMAIL, transaction.getEmail());
+        key_value.put(PropertyFields.TRANSACTION_TYPE, transaction.getType());
+        key_value.put(PropertyFields.TRANSACTION_BALANCE, transaction.getBalanceDelta());
     }
 
     @Override
@@ -45,7 +47,7 @@ public class AsyncGetBalance extends AsyncRequest{
 
         Log.d(TAG, "onPostExecute: Balance=" + serverBalance);
         if (listener != null){
-            listener.OnOk(bundle);
+            listener.OnOk(null);
         }
     }
 

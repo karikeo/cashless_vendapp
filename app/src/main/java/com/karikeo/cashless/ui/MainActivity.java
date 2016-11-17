@@ -29,6 +29,8 @@ import com.karikeo.cashless.protocol.CoderDecoderInterface;
 import com.karikeo.cashless.protocol.CoderDecoderInterfaceImpl;
 import com.karikeo.cashless.protocol.CommandInterface;
 import com.karikeo.cashless.protocol.CommandInterfaceImpl;
+import com.karikeo.cashless.serverrequests.AsyncSendTransaction;
+import com.karikeo.cashless.serverrequests.OnAsyncServerRequest;
 import com.karikeo.cashless.serverrequests.PropertyFields;
 import com.karikeo.cashless.ui.barcode.BarcodeCaptureActivity;
 
@@ -51,6 +53,7 @@ public class MainActivity extends ProgressBarActivity {
 
 
     private float currentBalance = 0;
+    private String email;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +76,7 @@ public class MainActivity extends ProgressBarActivity {
         Bundle b = getIntent().getExtras();
         if (b != null){
             currentBalance = Float.valueOf(b.getString(PropertyFields.BALANCE, "0"));
+            email = b.getString(PropertyFields.EMAIL);
         }
 
         setupCommunication();
@@ -124,7 +128,7 @@ public class MainActivity extends ProgressBarActivity {
             @Override
             public void onMessage(Transaction t) {
                 finalDb.open();
-                Transaction tr = finalDb.createTransaction(t.getType(), t.getBalanceDelta(), blueToothControl.getId());
+                Transaction tr = finalDb.createTransaction(t.getType(), t.getBalanceDelta(), blueToothControl.getId(), email);
                 //finalDb.close();
 
                 updateBalance(tr);
@@ -140,8 +144,28 @@ public class MainActivity extends ProgressBarActivity {
 
         Log.d(TAG, "updateBalance: " + String.valueOf(currentBalance));
 
+        uploadToServer(((CashlessApplication)getApplication()).getDbAccess().getTransactions());
+
         setDataFromModel();
         updateBalanceOnTarget(currentBalance);
+    }
+
+    private void uploadToServer(Transaction[] transactions){
+        for (final Transaction tr : transactions){
+            AsyncSendTransaction aT = new AsyncSendTransaction(tr, new OnAsyncServerRequest(){
+
+                @Override
+                public void OnOk(Bundle bundle) {
+                    ((CashlessApplication)getApplication()).getDbAccess().deleteTransaction(tr);
+                }
+
+                @Override
+                public void OnError(String msg) {
+
+                }
+            });
+            aT.execute();
+        }
     }
 
     @Override

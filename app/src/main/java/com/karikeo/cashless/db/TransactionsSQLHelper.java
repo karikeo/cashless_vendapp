@@ -16,9 +16,10 @@ public class TransactionsSQLHelper extends SQLiteOpenHelper {
     public static final String COLUMN_MACADDR = "mac_addr";
     public static final String COLUMN_DATE = "date";
     public static final String COLUMN_BALANCE_DELTA = "balance_delta";
+    public static final String COLUMN_EMAIL = "email";
 
     private static final String DATABASE_NAME = "transactions.db";
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
 
     // Database creation sql statement
     private static final String DATABASE_CREATE = "CREATE TABLE IF NOT EXISTS "
@@ -28,6 +29,7 @@ public class TransactionsSQLHelper extends SQLiteOpenHelper {
             COLUMN_MACADDR + " TEXT NOT NULL , " +
             COLUMN_DATE + " TEXT NOT NULL , " +
             COLUMN_BALANCE_DELTA + " INTEGER NOT NULL" +
+            COLUMN_EMAIL + " TEXT NOT NULL" +
             ");";
 
     public TransactionsSQLHelper(Context context){
