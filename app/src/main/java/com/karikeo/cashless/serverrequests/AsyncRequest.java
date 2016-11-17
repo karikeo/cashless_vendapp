@@ -89,6 +89,11 @@ abstract class AsyncRequest {
     }
 
     private void getAllProperties(SoapObject ob, Bundle b) {
+
+        if (ob.toString().indexOf("Inserted to database") != -1) {
+            return;
+        }
+
         try {
             ob = (SoapObject) ob.getProperty("diffgram");
             ob = (SoapObject) ob.getProperty("NewDataSet");

@@ -79,6 +79,15 @@ public class MainActivity extends ProgressBarActivity {
             email = b.getString(PropertyFields.EMAIL);
         }
 
+/*TODO REMOVE*//*
+        Transaction[] t = new Transaction[1];
+        t[0] = new Transaction();
+        t[0].setEmail(email);
+        t[0].setBalanceDelta("150");
+        t[0].setType("1");
+        uploadToServer(t);
+/*REMOVE*/
+
         setupCommunication();
 
         setDataFromModel();

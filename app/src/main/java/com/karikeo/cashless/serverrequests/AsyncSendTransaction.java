@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class AsyncSendTransaction extends AsyncRequest {
 
-    private static final String TAG = "AsyncGetBalance";
+    private static final String TAG = "AsyncSendTransaction";
     private static final String METHOD_NAME = "NewTransaction";
 
     private Transaction transaction;
@@ -28,7 +28,7 @@ public class AsyncSendTransaction extends AsyncRequest {
     @Override
     protected void onExecute(Map<String, String> key_value) {
         key_value.put(PropertyFields.EMAIL, transaction.getEmail());
-        key_value.put(PropertyFields.TRANSACTION_TYPE, transaction.getType());
+        key_value.put(PropertyFields.TRANSACTION_TYPE, /*transaction.getType()*/ "1");
         key_value.put(PropertyFields.TRANSACTION_BALANCE, transaction.getBalanceDelta());
     }
 
