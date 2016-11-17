@@ -9,12 +9,17 @@ import android.widget.TextView;
 
 import com.karikeo.cashless.Constants;
 import com.karikeo.cashless.R;
+import com.karikeo.cashless.serverrequests.AsyncGetBalance;
+import com.karikeo.cashless.serverrequests.OnAsyncServerRequest;
+import com.karikeo.cashless.serverrequests.PropertyFields;
 
 public class LoginActivity extends ProgressBarActivity {
 
     private TextView login;
     private TextView password;
     private Button loginButton;
+
+    private String balance = "0";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -30,8 +35,10 @@ public class LoginActivity extends ProgressBarActivity {
             }
         });
 
-        if (Constants.DEBUG != 0)
-            onBalanceUpdated();
+        if (Constants.DEBUG != 0) {
+            //onBalanceUpdated();
+            login("spb@gmail.com", "1111");
+        }
     }
 
     @Override
@@ -42,12 +49,20 @@ public class LoginActivity extends ProgressBarActivity {
     private void login(String login, String password) {
         UIUtil.hideKeyboard(loginButton);
         showProgress(R.string.logging_in);
-        loginButton.postDelayed(new Runnable() {
+
+        AsyncGetBalance b = new AsyncGetBalance(login, password, new OnAsyncServerRequest() {
             @Override
-            public void run() {
+            public void OnOk(String param) {
+                balance = param;
                 onLogin();
             }
-        }, 2000);
+
+            @Override
+            public void OnError(String msg) {
+                //Ooops something wrong
+            }
+        });
+        b.execute();
     }
 
     private void updateBalance() {
@@ -65,7 +80,12 @@ public class LoginActivity extends ProgressBarActivity {
     }
 
     public void onBalanceUpdated() {
+        Bundle b = new Bundle();
+        b.putString(PropertyFields.BALANCE,  balance);
+
         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+        intent.putExtras(b);
+
         startActivity(intent);
     }
 

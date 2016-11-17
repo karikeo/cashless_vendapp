@@ -7,7 +7,7 @@ import com.karikeo.cashless.db.Transaction;
 
 public interface CommandInterface {
 
-    void sendBalance(int i);
+    void sendBalance(float i);
     void sendCancel();
 
     void registerOnMessageListener(CommandInterfaceImpl.OnMessage listener);

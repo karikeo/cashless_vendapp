@@ -26,8 +26,8 @@ public class CommandInterfaceImpl implements CommandInterface, CoderDecoderInter
 
 
     @Override
-    public void sendBalance(int i) {
-        write(COMMAND_BALANCE+Integer.toString(i));
+    public void sendBalance(float i) {
+        write(COMMAND_BALANCE+Float.toString(i));
     }
 
     @Override

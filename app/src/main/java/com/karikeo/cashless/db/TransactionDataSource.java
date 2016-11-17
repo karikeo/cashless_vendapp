@@ -60,7 +60,7 @@ public class TransactionDataSource {
         return  newTransaction;
     }
 
-    public int getBalanceDeltaFromAllTransactions(){
+    public Float getBalanceDeltaFromAllTransactions(){
         Cursor cursor = null;
         String sum = "0";
         try {
@@ -77,7 +77,7 @@ public class TransactionDataSource {
             }
         }
 
-        return Integer.decode(sum);
+        return Float.valueOf(sum);
     }
 
     public void deleteTransaction(Transaction transaction){

@@ -10,7 +10,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.View;
-import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.CommonStatusCodes;
@@ -29,6 +29,7 @@ import com.karikeo.cashless.protocol.CoderDecoderInterface;
 import com.karikeo.cashless.protocol.CoderDecoderInterfaceImpl;
 import com.karikeo.cashless.protocol.CommandInterface;
 import com.karikeo.cashless.protocol.CommandInterfaceImpl;
+import com.karikeo.cashless.serverrequests.PropertyFields;
 import com.karikeo.cashless.ui.barcode.BarcodeCaptureActivity;
 
 
@@ -43,19 +44,19 @@ public class MainActivity extends ProgressBarActivity {
     private static String[] PERMISSIONS_BT = {Manifest.permission.BLUETOOTH,
             Manifest.permission.BLUETOOTH_ADMIN};
 
-    private EditText balance;
+    private TextView balance;
 
     private CommInterface blueToothControl;
     private String qrCode;
 
 
-    private int currentBalance = 0;
+    private float currentBalance = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        balance = (EditText) findViewById(R.id.balance);
+        balance = (TextView) findViewById(R.id.balance);
         findViewById(R.id.qr_code_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -68,8 +69,24 @@ public class MainActivity extends ProgressBarActivity {
                 }
             }
         });
+
+        Bundle b = getIntent().getExtras();
+        if (b != null){
+            currentBalance = Float.valueOf(b.getString(PropertyFields.BALANCE, "0"));
+        }
+
+        setupCommunication();
+
         setDataFromModel();
 
+        if (Constants.DEBUG != 0){
+            currentBalance = 10002;
+            connect("10:14:07:10:29:10");
+        }
+    }
+
+    /*Setup communication chain*/
+    private void setupCommunication() {
         blueToothControl = ((CashlessApplication)getApplication()).getCommInterface();
         if (blueToothControl == null){
             blueToothControl = new BlueToothControl(getApplication());
@@ -96,7 +113,7 @@ public class MainActivity extends ProgressBarActivity {
 
         //Setup Download chain
         cd.addOutputStream((OutputStream)blueToothControl);
-        comm.addOutputStream((OutputStream)((CoderDecoderInterfaceImpl)cd));
+        comm.addOutputStream((OutputStream)(cd));
 
         //Setup Upload chain
         blueToothControl.registerOnRawData((Communication.DataCallback) cd);
@@ -113,11 +130,6 @@ public class MainActivity extends ProgressBarActivity {
                 updateBalance(tr);
             }
         });
-
-        if (Constants.DEBUG != 0){
-            currentBalance = 10002;
-            connect("10:14:07:10:29:10");
-        }
     }
 
     private void updateBalance(Transaction tr){
@@ -128,6 +140,7 @@ public class MainActivity extends ProgressBarActivity {
 
         Log.d(TAG, "updateBalance: " + String.valueOf(currentBalance));
 
+        setDataFromModel();
         updateBalanceOnTarget(currentBalance);
     }
 
@@ -138,7 +151,7 @@ public class MainActivity extends ProgressBarActivity {
         ((CashlessApplication)getApplication()).getDbAccess().close();
     }
 
-    private void updateBalanceOnTarget(int i){
+    private void updateBalanceOnTarget(float i){
         CommandInterface comm  = ((CashlessApplication)getApplication()).getCommandInterface();
         comm.sendCancel();
         try {
@@ -257,6 +270,6 @@ public class MainActivity extends ProgressBarActivity {
     }
 
     private void setDataFromModel() {
-        balance.setText("1000$");
+        balance.setText(Float.toString(currentBalance));
     }
 }
