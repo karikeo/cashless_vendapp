@@ -38,14 +38,14 @@ public class AsyncSendTransaction extends AsyncRequest {
             sendError("Error during request");
             return;
         }
-
+/*
         final String serverBalance = bundle.getString(PropertyFields.BALANCE);
         if (serverBalance == null){
             sendError("Can not find known parameter");
             return;
         }
-
         Log.d(TAG, "onPostExecute: Balance=" + serverBalance);
+*/
         if (listener != null){
             listener.OnOk(null);
         }
