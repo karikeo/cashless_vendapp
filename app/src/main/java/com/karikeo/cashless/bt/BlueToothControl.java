@@ -12,7 +12,7 @@ import java.lang.reflect.Method;
 
 public class BlueToothControl implements CommInterface, OutputStream {
     private static final String TAG = "BlueToothControl";
-    public static final int REQUEST_ENABLE_BT = 0x922625;
+    public static final int REQUEST_ENABLE_BT = 0x922;
 
     private String id;
     private BlueToothControl control;
