@@ -25,7 +25,7 @@
         android:layout_marginRight="24dp"
         android:hint="@string/login"
         android:inputType="text"
-        android:maxLength="20"
+        android:maxLength="50"
         android:maxLines="1" />
 
     <EditText
