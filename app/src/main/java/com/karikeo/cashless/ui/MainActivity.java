@@ -143,6 +143,8 @@ public class MainActivity extends ProgressBarActivity {
                 //finalDb.close();
 
                 updateBalance(tr);
+
+                blueToothControl.closeConnection();
             }
         });
     }
