@@ -28,7 +28,7 @@ public class TransactionsSQLHelper extends SQLiteOpenHelper {
             COLUMN_TRANSACTION_TYPE + " TEXT NOT NULL , " +
             COLUMN_MACADDR + " TEXT NOT NULL , " +
             COLUMN_DATE + " TEXT NOT NULL , " +
-            COLUMN_BALANCE_DELTA + " INTEGER NOT NULL" +
+            COLUMN_BALANCE_DELTA + " INTEGER NOT NULL , " +
             COLUMN_EMAIL + " TEXT NOT NULL" +
             ");";
 
