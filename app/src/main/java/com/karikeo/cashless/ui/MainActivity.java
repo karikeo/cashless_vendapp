@@ -3,9 +3,11 @@ package com.karikeo.cashless.ui;
 import android.Manifest;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
@@ -279,6 +281,10 @@ public class MainActivity extends ProgressBarActivity {
             blueToothControl.addAsyncResponseListener(new BTOpenPortStatus() {
                 @Override
                 public void onBTOpenPortDone() {
+
+                    Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                    v.vibrate(400);
+
                     updateBalanceOnTarget(currentBalance);
                 }
 
