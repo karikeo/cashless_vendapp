@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -91,7 +92,7 @@ public final class BarcodeCaptureActivity extends AppCompatActivity {
         mGraphicOverlay = (GraphicOverlay<BarcodeGraphic>) findViewById(R.id.graphicOverlay);
 
         // read parameters from the intent used to launch the activity.
-        boolean autoFocus = getIntent().getBooleanExtra(AutoFocus, false);
+        boolean autoFocus = getIntent().getBooleanExtra(AutoFocus, true);
         boolean useFlash = getIntent().getBooleanExtra(UseFlash, false);
 
         // Check for the camera permission before accessing the camera.  If the
@@ -169,7 +170,12 @@ public final class BarcodeCaptureActivity extends AppCompatActivity {
         // graphics for each barcode on screen.  The factory is used by the multi-processor to
         // create a separate tracker instance for each barcode.
         BarcodeDetector barcodeDetector = new BarcodeDetector.Builder(context).build();
-        BarcodeTrackerFactory barcodeFactory = new BarcodeTrackerFactory(mGraphicOverlay);
+        BarcodeTrackerFactory barcodeFactory = new BarcodeTrackerFactory(mGraphicOverlay, new BarcodeGraphicTracker.Callback() {
+            @Override
+            public void onNewItem(Barcode item) {
+                processBarcode(item);
+            }
+        });
         barcodeDetector.setProcessor(
                 new MultiProcessor.Builder<>(barcodeFactory).build());
 
@@ -339,21 +345,28 @@ public final class BarcodeCaptureActivity extends AppCompatActivity {
         Barcode barcode = null;
         if (graphic != null) {
             barcode = graphic.getBarcode();
-            if (barcode != null) {
-                Intent data = new Intent();
-                data.putExtra(BarcodeObject, barcode);
-                setResult(CommonStatusCodes.SUCCESS, data);
-                Log.d(TAG, "SCANNED=" + barcode.displayValue);
-                finish();
-            }
-            else {
-                Log.d(TAG, "barcode data is null");
-            }
+            processBarcode(barcode);
         }
         else {
             Log.d(TAG,"no barcode detected");
         }
         return barcode != null;
+    }
+
+    private void processBarcode(Barcode barcode) {
+        if (barcode != null) {
+            if (BluetoothAdapter.checkBluetoothAddress(barcode.displayValue)) {
+                Intent data = new Intent();
+                data.putExtra(BarcodeObject, barcode);
+                setResult(CommonStatusCodes.SUCCESS, data);
+                Log.d(TAG, "scanned bt address = " + barcode.displayValue);
+                finish();
+            } else {
+                Log.d(TAG, "invalid bt address " + barcode.displayValue);
+            }
+        } else {
+            Log.d(TAG, "barcode data is null");
+        }
     }
 
     private class CaptureGestureListener extends GestureDetector.SimpleOnGestureListener {
