@@ -26,15 +26,17 @@ import com.karikeo.cashless.ui.barcode.camera.GraphicOverlay;
  */
 class BarcodeTrackerFactory implements MultiProcessor.Factory<Barcode> {
     private GraphicOverlay<BarcodeGraphic> mGraphicOverlay;
+    private BarcodeGraphicTracker.Callback mCallback;
 
-    BarcodeTrackerFactory(GraphicOverlay<BarcodeGraphic> barcodeGraphicOverlay) {
+    BarcodeTrackerFactory(GraphicOverlay<BarcodeGraphic> barcodeGraphicOverlay, BarcodeGraphicTracker.Callback callback) {
         mGraphicOverlay = barcodeGraphicOverlay;
+        mCallback = callback;
     }
 
     @Override
     public Tracker<Barcode> create(Barcode barcode) {
         BarcodeGraphic graphic = new BarcodeGraphic(mGraphicOverlay);
-        return new BarcodeGraphicTracker(mGraphicOverlay, graphic);
+        return new BarcodeGraphicTracker(mGraphicOverlay, graphic, mCallback);
     }
 
 }

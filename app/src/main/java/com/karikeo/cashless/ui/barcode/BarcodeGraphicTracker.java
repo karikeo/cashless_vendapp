@@ -29,10 +29,16 @@ import com.karikeo.cashless.ui.barcode.camera.GraphicOverlay;
 class BarcodeGraphicTracker extends Tracker<Barcode> {
     private GraphicOverlay<BarcodeGraphic> mOverlay;
     private BarcodeGraphic mGraphic;
+    private Callback mCallback;
 
-    BarcodeGraphicTracker(GraphicOverlay<BarcodeGraphic> overlay, BarcodeGraphic graphic) {
+    interface Callback {
+        void onNewItem(Barcode item);
+    }
+
+    BarcodeGraphicTracker(GraphicOverlay<BarcodeGraphic> overlay, BarcodeGraphic graphic, Callback callback) {
         mOverlay = overlay;
         mGraphic = graphic;
+        mCallback = callback;
     }
 
     /**
@@ -41,6 +47,7 @@ class BarcodeGraphicTracker extends Tracker<Barcode> {
     @Override
     public void onNewItem(int id, Barcode item) {
         mGraphic.setId(id);
+        mCallback.onNewItem(item);
     }
 
     /**
