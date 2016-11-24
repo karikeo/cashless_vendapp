@@ -64,5 +64,6 @@
         android:paddingRight="16dp"
         android:paddingTop="8dp"
         android:text="@string/disconnect"
-        android:textSize="18sp" />
+        android:textSize="18sp"
+        android:id="@+id/disconnect"/>
 </LinearLayout>

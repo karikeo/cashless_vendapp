@@ -30,7 +30,7 @@ public class CashlessApplication extends Application{
     public void setCommandInterface(CommandInterface comm){command = comm;}
 
     public TransactionDataSource getDbAccess() {return dbAccess;}
-    public void setTranscationAccess(TransactionDataSource db){ dbAccess = db;}
+    public void setTransactionAccess(TransactionDataSource db){ dbAccess = db;}
 
 
     @Override

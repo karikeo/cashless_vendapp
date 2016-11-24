@@ -16,12 +16,7 @@ public class CommandInterfaceImpl implements CommandInterface, CoderDecoderInter
     private static final String TAG = "CommandInterfaceImpl";
     private static final String COMMAND_BALANCE = "BALANCE=";
     private static final String COMMAND_CANCEL = "CANCEL";
-/*
-    private static final String MESSAGE_DIVIDER = ";";
 
-    private static final String TYPE_VEND = "VEND";
-    private static final String TYPE_STATUS_OK = "OK";
-*/
     private OnMessage listener;
 
 
@@ -63,29 +58,44 @@ public class CommandInterfaceImpl implements CommandInterface, CoderDecoderInter
     public void OnPacket(String message) {
         Transaction t = new Transaction();
 
-        t.setStatus(false);
+        if (parseMessage(message, t)) return;
+
+        if (listener != null) {
+            listener.onMessage(t);
+        }
+    }
+
+    private boolean parseMessage(String message, Transaction t) {
+
+        if (message.equalsIgnoreCase("SESSION,COMPLETE")){
+            t.setType(Transaction.TYPE.COMPLETE);
+            return false;
+        }
+
+        if (message.equalsIgnoreCase("VEND,TIMEOUT")){
+            t.setType(Transaction.TYPE.TIMEOUT);
+            return false;
+        }
+
+        if (message.equalsIgnoreCase("VEND,FAIL")){
+            t.setType(Transaction.TYPE.FAIL);
+            return false;
+        }
 
         String parts[] = message.split(FIELDS_DIVIDER);
 
         if (parts.length < 3){
             Log.d(TAG, "Unknown message:" + message);
-            //sendMessage(t);
-            return;
+            return true;
         }
 
-        t.setType(parts[0]);
-        if (parts[1].equalsIgnoreCase(TYPE_STATUS_OK)){
-            t.setStatus(true);
-        }
+        t.setType(Transaction.TYPE.BALANCE);
 
         t.setDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
                 .format(Calendar.getInstance().getTime()));
 
         t.setBalanceDelta(parts[2]);
-
-        if (listener != null) {
-            listener.onMessage(t);
-        }
+        return false;
     }
 
     @Override

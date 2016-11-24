@@ -90,9 +90,18 @@ public class MainActivity extends ProgressBarActivity {
         uploadToServer(t);
 /*REMOVE*/
 
-        setupCommunication();
 
+        Log.d(TAG, "Balance from the Server:" + currentBalance);
+        currentBalance -= ((CashlessApplication)getApplication()).getDbAccess().getBalanceDeltaFromAllTransactions();
+        if (currentBalance < 0){
+            currentBalance = 0;
+        }
         setDataFromModel();
+        Log.d(TAG, "Local balance:" + currentBalance);
+
+        uploadToServer(((CashlessApplication)getApplication()).getDbAccess().getTransactions());
+
+        setupCommunication();
 
         if (Constants.DEBUG != 0){
             //currentBalance = 10002;
@@ -123,7 +132,7 @@ public class MainActivity extends ProgressBarActivity {
         TransactionDataSource db = ((CashlessApplication)getApplication()).getDbAccess();
         if (db == null){
             db = new TransactionDataSource(getApplication().getApplicationContext());
-            ((CashlessApplication)getApplication()).setTranscationAccess(db);
+            ((CashlessApplication)getApplication()).setTransactionAccess(db);
         }
 
         //Setup Download chain
@@ -134,33 +143,6 @@ public class MainActivity extends ProgressBarActivity {
         blueToothControl.registerOnRawData((Communication.DataCallback) cd);
         cd.registerOnPacketListener((CommandInterfaceImpl)comm);
 
-        final TransactionDataSource finalDb = db;
-        comm.registerOnMessageListener(new CommandInterfaceImpl.OnMessage() {
-            @Override
-            public void onMessage(Transaction t) {
-                finalDb.open();
-                Transaction tr = finalDb.createTransaction(t.getType(), t.getBalanceDelta(), blueToothControl.getId(), email);
-                //finalDb.close();
-
-                updateBalance(tr);
-
-                blueToothControl.closeConnection();
-            }
-        });
-    }
-
-    private void updateBalance(Transaction tr){
-        currentBalance -= ((CashlessApplication)getApplication()).getDbAccess().getBalanceDeltaFromAllTransactions();
-        if (currentBalance < 0){
-            currentBalance = 0;
-        }
-
-        Log.d(TAG, "updateBalance: " + String.valueOf(currentBalance));
-
-        uploadToServer(((CashlessApplication)getApplication()).getDbAccess().getTransactions());
-
-        setDataFromModel();
-        updateBalanceOnTarget(currentBalance);
     }
 
     private void uploadToServer(Transaction[] transactions){
@@ -186,17 +168,6 @@ public class MainActivity extends ProgressBarActivity {
         super.onStop();
 
         ((CashlessApplication)getApplication()).getDbAccess().close();
-    }
-
-    private void updateBalanceOnTarget(float i){
-        CommandInterface comm  = ((CashlessApplication)getApplication()).getCommandInterface();
-        comm.sendCancel();
-        try {
-            Thread.sleep(500);
-        }catch (Exception e){
-
-        }
-        comm.sendBalance(currentBalance);
     }
 
     private void cameraPermissionRequest() {
@@ -287,7 +258,7 @@ public class MainActivity extends ProgressBarActivity {
                     Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
                     v.vibrate(400);
 
-                    updateBalanceOnTarget(currentBalance);
+                    onConnect();
                 }
 
                 @Override
@@ -299,14 +270,17 @@ public class MainActivity extends ProgressBarActivity {
             });
 
             blueToothControl.openConnection(MainActivity.this, id);
-        }else{
-            updateBalanceOnTarget(currentBalance);
         }
-
     }
 
     public void onConnect() {
+        Bundle b = new Bundle();
+        b.putString(PropertyFields.BALANCE,  String.valueOf(currentBalance));
+        b.putString(PropertyFields.EMAIL, email);
+
         Intent intent = new Intent(MainActivity.this, SuccessfulConnectActivity.class);
+        intent.putExtras(b);
+
         startActivity(intent);
     }
 

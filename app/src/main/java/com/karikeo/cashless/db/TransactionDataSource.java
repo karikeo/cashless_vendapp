@@ -36,6 +36,9 @@ public class TransactionDataSource {
     }
 
     public Transaction createTransaction(final String tType, final String balanceDelta, final String macAddr, String email){
+        if (!database.isOpen())
+            open();
+
         ContentValues values = new ContentValues();
 
         values.put(TransactionsSQLHelper.COLUMN_TRANSACTION_TYPE, tType);
@@ -63,6 +66,9 @@ public class TransactionDataSource {
     }
 
     public Float getBalanceDeltaFromAllTransactions(){
+        if (!database.isOpen())
+            open();
+
         Cursor cursor = null;
         String sum = "0";
         try {
@@ -81,6 +87,10 @@ public class TransactionDataSource {
     }
 
     public Transaction[] getTransactions(){
+        if (!database.isOpen()){
+            open();
+        }
+
         Transaction[] transactions = null;
         Cursor cursor = null;
         try{
@@ -123,7 +133,7 @@ public class TransactionDataSource {
     private Transaction cursorToTransaction(Cursor cursor){
         Transaction t = new Transaction();
         t.setId(cursor.getLong(0));
-        t.setType(cursor.getString(1));
+        t.setType(Transaction.TYPE.fromString(cursor.getString(1)));
         t.setMacAddress(cursor.getString(2));
         t.setDate(cursor.getString(3));
         t.setBalanceDelta(cursor.getString(4));

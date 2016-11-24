@@ -2,13 +2,42 @@ package com.karikeo.cashless.db;
 
 
 public class Transaction {
+    public enum TYPE {
+        BALANCE,
+        CANCEL,
+        TIMEOUT,
+        COMPLETE,
+        FAIL,
+        UNKNOWN;
+
+        @Override
+        public String toString() {
+            return super.toString();
+        }
+
+        public static TYPE fromString(String type){
+            switch (type){
+                case "BALANCE":
+                    return BALANCE;
+                case "CANCEL":
+                    return CANCEL;
+                case "TIMEOUT":
+                    return TIMEOUT;
+                case "COMPLETE":
+                    return COMPLETE;
+                case "FAIL":
+                    return FAIL;
+                default:
+                    return UNKNOWN;
+            }
+        }
+    }
     private long id;
-    private String type;
     private String macAddress;
     private String date;
     private String balanceDelta;
-    private boolean status;
     private String email;
+    private TYPE type;
 
     public long getId() {
         return id;
@@ -17,10 +46,10 @@ public class Transaction {
         this.id = id;
     }
 
-    public String getType() {
+    public TYPE getType() {
         return type;
     }
-    public void setType(String type) {
+    public void setType(TYPE type) {
         this.type = type;
     }
 
@@ -52,7 +81,4 @@ public class Transaction {
     public void setEmail(String email) {
         this.email = email;
     }
-
-    public void setStatus(boolean ok){status = ok;}
-    public boolean getStatus(){return status;}
 }
