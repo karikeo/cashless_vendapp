@@ -95,7 +95,7 @@ public class MainActivity extends ProgressBarActivity {
         setDataFromModel();
 
         if (Constants.DEBUG != 0){
-            currentBalance = 10002;
+            //currentBalance = 10002;
             connect("10:14:07:10:29:10");
         }
     }

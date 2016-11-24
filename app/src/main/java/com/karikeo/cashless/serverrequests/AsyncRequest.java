@@ -24,7 +24,7 @@ abstract class AsyncRequest {
     protected static final String NAMESPACE = "http://badplanet.ddns.net/";
     protected static final String URL = "http://badplanet.ddns.net:11307/WebService.asmx";
 
-    static final String STATUS = "status";
+    static final String STATUS = "status|";
 
 
     protected OnAsyncServerRequest listener;
@@ -61,7 +61,7 @@ abstract class AsyncRequest {
 
             HttpTransportSE androidHttpTransport = new HttpTransportSE(URL);
             try {
-                if (Constants.DEBUG != 0){
+                if (Constants.DEBUG != 0) {
                     androidHttpTransport.debug = true;
                 }
 
@@ -73,6 +73,10 @@ abstract class AsyncRequest {
                 }
 
                 response = (SoapObject) envelope.getResponse();
+
+            }catch ( java.net.SocketTimeoutException e){
+                //e.printStackTrace();
+                Log.d(TAG, "response: " + e.toString() );
             }catch (Exception e){
                 e.printStackTrace();
             }
@@ -83,8 +87,11 @@ abstract class AsyncRequest {
         @Override
         protected void onPostExecute(Void aVoid) {
             Bundle b = new Bundle();
-            getAllProperties(response, b);
-            AsyncRequest.this.onPostExecute(b);
+            if ( response != null )
+            {
+                getAllProperties(response, b);
+                AsyncRequest.this.onPostExecute(b);
+            }
         }
     }
 

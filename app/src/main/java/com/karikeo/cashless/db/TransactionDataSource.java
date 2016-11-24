@@ -84,7 +84,7 @@ public class TransactionDataSource {
         Transaction[] transactions = null;
         Cursor cursor = null;
         try{
-            cursor = database.rawQuery("SELECT ALL FROM "+ TransactionsSQLHelper.TABLE_TRANSACTION, new String[]{});
+            cursor = database.rawQuery("SELECT * FROM "+ TransactionsSQLHelper.TABLE_TRANSACTION, new String[]{});
 
             final int num = cursor.getCount();
 
