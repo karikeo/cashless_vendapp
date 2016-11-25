@@ -36,7 +36,7 @@ public class TransactionDataSource {
     }
 
     public Transaction createTransaction(final String tType, final String balanceDelta, final String macAddr, String email){
-        if (!database.isOpen())
+        if ( database == null || !database.isOpen() )
             open();
 
         ContentValues values = new ContentValues();
@@ -87,7 +87,7 @@ public class TransactionDataSource {
     }
 
     public Transaction[] getTransactions(){
-        if (!database.isOpen()){
+        if ( database == null || !database.isOpen() ){
             open();
         }
 

@@ -92,14 +92,24 @@ public class MainActivity extends ProgressBarActivity {
 
 
         Log.d(TAG, "Balance from the Server:" + currentBalance);
-        currentBalance -= ((CashlessApplication)getApplication()).getDbAccess().getBalanceDeltaFromAllTransactions();
+        TransactionDataSource db = ((CashlessApplication)getApplication()).getDbAccess();
+        if (db == null){
+            db = new TransactionDataSource(getApplication().getApplicationContext());
+            ((CashlessApplication)getApplication()).setTransactionAccess(db);
+        } else {
+            currentBalance -= db.getBalanceDeltaFromAllTransactions();
+        }
+
         if (currentBalance < 0){
             currentBalance = 0;
         }
         setDataFromModel();
         Log.d(TAG, "Local balance:" + currentBalance);
 
-        uploadToServer(((CashlessApplication)getApplication()).getDbAccess().getTransactions());
+        Transaction[] transactions = ((CashlessApplication)getApplication()).getDbAccess().getTransactions();
+        if ( transactions != null ) {
+            uploadToServer(transactions);
+        }
 
         setupCommunication();
 
