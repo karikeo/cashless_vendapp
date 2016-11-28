@@ -21,8 +21,8 @@ abstract class AsyncRequest {
     protected final String SOAP_ACTION;
     protected final String METHOD_NAME;
 
-    protected static final String NAMESPACE = "http://badplanet.ddns.net/";
-    protected static final String URL = "http://badplanet.ddns.net:11307/WebService.asmx";
+    protected static final String NAMESPACE = "http://www.vendomatica.cl/";
+    protected static final String URL = "http://www.vendomatica.cl:11307/WebService.asmx";
 
     static final String STATUS = "status|";
 
