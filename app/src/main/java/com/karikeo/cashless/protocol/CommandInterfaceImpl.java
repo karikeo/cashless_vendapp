@@ -66,6 +66,7 @@ public class CommandInterfaceImpl implements CommandInterface, CoderDecoderInter
     }
 
     private boolean parseMessage(String message, Transaction t) {
+        message = message.trim();
 
         if (message.equalsIgnoreCase("SESSION,COMPLETE")){
             t.setType(Transaction.TYPE.COMPLETE);

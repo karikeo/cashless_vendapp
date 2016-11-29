@@ -95,6 +95,7 @@ public class Communication {
                 if (callback != null){
                     callback.onRawData(b);
                 }
+                buf.popFirst();
             }
         }
     }

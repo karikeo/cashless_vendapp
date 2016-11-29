@@ -57,6 +57,8 @@ public class MainActivity extends ProgressBarActivity {
     private float currentBalance = 0;
     private String email;
 
+    private float serverBalance = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,6 +80,7 @@ public class MainActivity extends ProgressBarActivity {
         Bundle b = getIntent().getExtras();
         if (b != null){
             currentBalance = Float.valueOf(b.getString(PropertyFields.BALANCE, "0"));
+            serverBalance = currentBalance;
             email = b.getString(PropertyFields.EMAIL);
         }
 
@@ -109,6 +112,7 @@ public class MainActivity extends ProgressBarActivity {
         Transaction[] transactions = ((CashlessApplication)getApplication()).getDbAccess().getTransactions();
         if ( transactions != null ) {
             uploadToServer(transactions);
+            serverBalance = currentBalance;
         }
 
         setupCommunication();
@@ -117,6 +121,14 @@ public class MainActivity extends ProgressBarActivity {
             //currentBalance = 10002;
             connect("10:14:07:10:29:10");
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        currentBalance = serverBalance - ((CashlessApplication)getApplication()).getDbAccess().getBalanceDeltaFromAllTransactions();
+        Log.d(TAG, String.format("OnResume: server=%5d local=%5d", (int)serverBalance, (int)currentBalance));
+        setDataFromModel();
     }
 
     /*Setup communication chain*/
@@ -287,6 +299,8 @@ public class MainActivity extends ProgressBarActivity {
         Bundle b = new Bundle();
         b.putString(PropertyFields.BALANCE,  String.valueOf(currentBalance));
         b.putString(PropertyFields.EMAIL, email);
+
+        Log.d(TAG, String.format("Start activity with balance %5d", (int)currentBalance));
 
         Intent intent = new Intent(MainActivity.this, SuccessfulConnectActivity.class);
         intent.putExtras(b);

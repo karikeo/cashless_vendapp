@@ -2,6 +2,7 @@ package com.karikeo.cashless.ui;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -16,6 +17,8 @@ import com.karikeo.cashless.protocol.CommandInterfaceImpl;
 import com.karikeo.cashless.serverrequests.PropertyFields;
 
 public class SuccessfulConnectActivity extends AppCompatActivity {
+
+    final static String TAG = "SuccessfulConnectA";
 
     private TextView balance;
     private Transaction transaction;
@@ -37,6 +40,8 @@ public class SuccessfulConnectActivity extends AppCompatActivity {
             email = b.getString(PropertyFields.EMAIL);
         }
 
+        Log.d(TAG, String.format("balance:%5d", (int)currentBalance));
+
         //setDataFromModel();
         final CommandInterface comm  = ((CashlessApplication)getApplication()).getCommandInterface();
 
@@ -47,12 +52,20 @@ public class SuccessfulConnectActivity extends AppCompatActivity {
                 if (t.getType() == Transaction.TYPE.BALANCE){
                     //dirty transaction
                     transaction = t;
+                    currentBalance -= Float.parseFloat(t.getBalanceDelta());
+                    if (currentBalance<0){
+                        currentBalance = 0;
+                    }
+                    setDataFromModel();
+
+                    Log.d(TAG, String.format("BalanceDelta=%5d", (int)Float.parseFloat(t.getBalanceDelta())));
                 } else if (t.getType() == Transaction.TYPE.COMPLETE){
                     //store dirty transaction
                     if (transaction != null){
                         TransactionDataSource db = ((CashlessApplication)getApplication()).getDbAccess();
 
-                        Transaction tr = db.createTransaction(t.getType().toString(), t.getBalanceDelta(),
+                        Transaction tr = db.createTransaction(transaction.getType().toString(),
+                                transaction.getBalanceDelta(),
                                 ((CashlessApplication)getApplication()).getCommInterface().getId(), email);
 
                         currentBalance -= Float.parseFloat(tr.getBalanceDelta());
@@ -85,10 +98,12 @@ public class SuccessfulConnectActivity extends AppCompatActivity {
 
     private void setDataFromModel() {
         balance.setText(String.format("%5d", (int)currentBalance));
+        Log.d(TAG, String.format("balance on screen:%5d", (int)currentBalance));
     }
 
 
     private void closeActivity(){
+        Log.d(TAG, String.format("closeActivity:%5d", (int)currentBalance));
         ((CashlessApplication)getApplication()).getCommInterface().closeConnection();
         finish();
     }
@@ -102,5 +117,6 @@ public class SuccessfulConnectActivity extends AppCompatActivity {
 
         }
         comm.sendBalance(currentBalance);
+        Log.d(TAG, String.format("sent to vnd:%5d", (int)currentBalance));
     }
 }
