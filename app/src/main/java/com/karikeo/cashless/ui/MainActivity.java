@@ -295,6 +295,6 @@ public class MainActivity extends ProgressBarActivity {
     }
 
     private void setDataFromModel() {
-        balance.setText(Float.toString(currentBalance));
+        balance.setText(String.format("%5d", (int)currentBalance));
     }
 }

@@ -84,8 +84,10 @@ public class BlueToothControl implements CommInterface, OutputStream {
         if (com != null){
             com.setStop(true);
         }
-        socket.closeSockets();
-        isConnected = false;
+        if (isConnected) {
+            socket.closeSockets();
+            isConnected = false;
+        }
     }
 
     @Override

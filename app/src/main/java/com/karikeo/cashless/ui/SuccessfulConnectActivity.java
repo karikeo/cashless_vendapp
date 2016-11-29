@@ -60,7 +60,9 @@ public class SuccessfulConnectActivity extends AppCompatActivity {
                             currentBalance = 0;
                         }
                         setDataFromModel();
+                        transaction = null;
                     }
+                    closeActivity();
                 } else if (t.getType() == Transaction.TYPE.TIMEOUT){
                     transaction = null;
                     closeActivity();

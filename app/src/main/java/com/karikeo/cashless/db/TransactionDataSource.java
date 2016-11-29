@@ -70,7 +70,7 @@ public class TransactionDataSource {
             open();
 
         Cursor cursor = null;
-        String sum = "0";
+        String sum = null;
         try {
             //cursor = database.rawQuery("SELECT SUM(?) FROM ?", new String[]{TransactionsSQLHelper.COLUMN_BALANCE_DELTA, TransactionsSQLHelper.TABLE_TRANSACTION});
             cursor = database.rawQuery("SELECT SUM(" + TransactionsSQLHelper.COLUMN_BALANCE_DELTA + ") FROM " + TransactionsSQLHelper.TABLE_TRANSACTION, new String[]{});
@@ -81,6 +81,9 @@ public class TransactionDataSource {
         }
         finally {
             closeCursor(cursor);
+        }
+        if (sum == null){
+            sum = "0";
         }
 
         return Float.valueOf(sum);
