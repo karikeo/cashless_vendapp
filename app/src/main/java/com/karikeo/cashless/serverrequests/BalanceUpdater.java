@@ -4,7 +4,6 @@ package com.karikeo.cashless.serverrequests;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.karikeo.cashless.CashlessApplication;
 import com.karikeo.cashless.db.Transaction;
 import com.karikeo.cashless.db.TransactionDataSource;
 
@@ -13,24 +12,25 @@ public class BalanceUpdater {
 
     private String login, password;
 
-    private float currentBalance, serverBalance;
+    private float localBalance, serverBalance;
     private TransactionDataSource db;
 
-    interface OnBalanceUpdateListener{
+    public interface OnBalanceUpdateListener{
         void onUpdate(int balance);
+        void onError();
     }
 
     OnBalanceUpdateListener listener;
 
-    public BalanceUpdater(String login, String pwd, TransactionDataSource db){
-        this.login = login;
-        password = pwd;
+
+    public BalanceUpdater(TransactionDataSource db){
         this.db = db;
     }
 
+
     public int getBalance(){
         updateBalance();
-        return (int) currentBalance;
+        return (int) (serverBalance - localBalance);
     }
 
     public void registerListener(OnBalanceUpdateListener update){
@@ -39,32 +39,44 @@ public class BalanceUpdater {
 
     public void updateBalance(){
         //try to upload everything to the server and get server balance after this
+        uploadToServer(db.getTransactions());
 
-        b.execute();
     }
 
     public void updateBalance(Transaction t){
 
     }
 
-    private AsyncGetBalance b = new AsyncGetBalance(login, password, new OnAsyncServerRequest() {
-        @Override
-        public void OnOk(Bundle bundle) {
-            if(listener != null){
-                int b =Float.valueOf(String.valueOf(bundle.getString(PropertyFields.BALANCE))).intValue();
-                serverBalance = b;
-                db.getBalanceDeltaFromAllTransactions();
+    public void getBalanceFromServer(String login, String pwd){
+        this.login = login;
+        password = pwd;
 
-                listener.onUpdate(b);
-                Log.d(TAG, String.format("Updated from server with:%5d", b));
+        final AsyncGetBalance b = new AsyncGetBalance(login, password, new OnAsyncServerRequest() {
+            @Override
+            public void OnOk(Bundle bundle) {
+                if(listener != null){
+                    int b =Float.valueOf(String.valueOf(bundle.getString(PropertyFields.BALANCE))).intValue();
+                    serverBalance = b;
+                    localBalance = db.getBalanceDeltaFromAllTransactions();
+
+                    if (listener != null) {
+                        listener.onUpdate((int)(serverBalance - localBalance));
+                    }
+                    Log.d(TAG, String.format("Updated from server with:%5d", b));
+                }
             }
-        }
 
-        @Override
-        public void OnError(String msg) {
-            Log.d(TAG, String.format("Can't connect to the server! BOOM! with msg %s", msg));
-        }
-    });
+            @Override
+            public void OnError(String msg) {
+                if (listener != null){
+                    listener.onError();
+                }
+
+                Log.d(TAG, String.format("Can't connect to the server! BOOM! with msg %s", msg));
+            }
+        });
+        b.execute();
+    }
 
 
     private void uploadToServer(Transaction[] transactions){
@@ -74,11 +86,17 @@ public class BalanceUpdater {
                 @Override
                 public void OnOk(Bundle bundle) {
                     db.deleteTransaction(tr);
+                    serverBalance -= Float.valueOf(tr.getBalanceDelta());
+                    localBalance = db.getBalanceDeltaFromAllTransactions();
+
+                    if (listener!= null){
+                        listener.onUpdate((int)(serverBalance - localBalance));
+                    }
                 }
 
                 @Override
                 public void OnError(String msg) {
-
+                    Log.d(TAG, String.format("Can't upload transaction to the server with msg:%s", msg));
                 }
             });
             aT.execute();

@@ -14,6 +14,7 @@ import com.karikeo.cashless.db.Transaction;
 import com.karikeo.cashless.db.TransactionDataSource;
 import com.karikeo.cashless.protocol.CommandInterface;
 import com.karikeo.cashless.protocol.CommandInterfaceImpl;
+import com.karikeo.cashless.serverrequests.BalanceUpdater;
 import com.karikeo.cashless.serverrequests.PropertyFields;
 
 public class SuccessfulConnectActivity extends AppCompatActivity {
@@ -23,9 +24,10 @@ public class SuccessfulConnectActivity extends AppCompatActivity {
     private TextView balance;
     private Transaction transaction;
 
-    private float currentBalance = 0;
+//    private float currentBalance = 0;
     private String email;
 
+    BalanceUpdater updater;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,11 +38,12 @@ public class SuccessfulConnectActivity extends AppCompatActivity {
 
         Bundle b = getIntent().getExtras();
         if (b != null){
-            currentBalance = Float.valueOf(b.getString(PropertyFields.BALANCE, "0"));
             email = b.getString(PropertyFields.EMAIL);
         }
 
-        Log.d(TAG, String.format("balance:%5d", (int)currentBalance));
+        updater = ((CashlessApplication)getApplication()).getBalanceUpdater();
+
+//        Log.d(TAG, String.format("balance:%5d", (int)currentBalance));
 
         //setDataFromModel();
         final CommandInterface comm  = ((CashlessApplication)getApplication()).getCommandInterface();
@@ -52,10 +55,15 @@ public class SuccessfulConnectActivity extends AppCompatActivity {
                 if (t.getType() == Transaction.TYPE.BALANCE){
                     //dirty transaction
                     transaction = t;
+                    int b = updater.getBalance();
+                    b
+/*
                     currentBalance -= Float.parseFloat(t.getBalanceDelta());
                     if (currentBalance<0){
                         currentBalance = 0;
                     }
+*/
+
                     setDataFromModel();
 
                     Log.d(TAG, String.format("BalanceDelta=%5d", (int)Float.parseFloat(t.getBalanceDelta())));

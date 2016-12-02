@@ -7,6 +7,7 @@ import com.karikeo.cashless.bt.CommInterface;
 import com.karikeo.cashless.db.TransactionDataSource;
 import com.karikeo.cashless.protocol.CoderDecoderInterface;
 import com.karikeo.cashless.protocol.CommandInterface;
+import com.karikeo.cashless.serverrequests.BalanceUpdater;
 
 public class CashlessApplication extends Application{
 
@@ -14,6 +15,7 @@ public class CashlessApplication extends Application{
     private CoderDecoderInterface codeInterface;
     private CommandInterface command;
     private TransactionDataSource dbAccess;
+    private BalanceUpdater bUpdater;
 
 
     public CommInterface getCommInterface(){
@@ -31,6 +33,9 @@ public class CashlessApplication extends Application{
 
     public TransactionDataSource getDbAccess() {return dbAccess;}
     public void setTransactionAccess(TransactionDataSource db){ dbAccess = db;}
+
+    public BalanceUpdater getBalanceUpdater(){return bUpdater;}
+    public void setBalanceUpdater(BalanceUpdater b){bUpdater = b;}
 
 
     @Override

@@ -53,11 +53,8 @@ public class MainActivity extends ProgressBarActivity {
     private CommInterface blueToothControl;
     private String qrCode;
 
-
-    private float currentBalance = 0;
     private String email;
 
-    private float serverBalance = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,8 +76,8 @@ public class MainActivity extends ProgressBarActivity {
 
         Bundle b = getIntent().getExtras();
         if (b != null){
-            currentBalance = Float.valueOf(b.getString(PropertyFields.BALANCE, "0"));
-            serverBalance = currentBalance;
+//            currentBalance = Float.valueOf(b.getString(PropertyFields.BALANCE, "0"));
+//            serverBalance = currentBalance;
             email = b.getString(PropertyFields.EMAIL);
         }
 
@@ -109,12 +106,13 @@ public class MainActivity extends ProgressBarActivity {
         setDataFromModel();
         Log.d(TAG, "Local balance:" + currentBalance);
 */
+/*
         Transaction[] transactions = ((CashlessApplication)getApplication()).getDbAccess().getTransactions();
         if ( transactions != null ) {
             uploadToServer(transactions);
             serverBalance = currentBalance;
         }
-
+*/
         setupCommunication();
 
         if (Constants.DEBUG != 0){
@@ -126,8 +124,6 @@ public class MainActivity extends ProgressBarActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        currentBalance = serverBalance - ((CashlessApplication)getApplication()).getDbAccess().getBalanceDeltaFromAllTransactions();
-        Log.d(TAG, String.format("OnResume: server=%5d local=%5d", (int)serverBalance, (int)currentBalance));
         setDataFromModel();
     }
 
@@ -297,10 +293,7 @@ public class MainActivity extends ProgressBarActivity {
 
     public void onConnect() {
         Bundle b = new Bundle();
-        b.putString(PropertyFields.BALANCE,  String.valueOf(currentBalance));
         b.putString(PropertyFields.EMAIL, email);
-
-        Log.d(TAG, String.format("Start activity with balance %5d", (int)currentBalance));
 
         Intent intent = new Intent(MainActivity.this, SuccessfulConnectActivity.class);
         intent.putExtras(b);
@@ -309,6 +302,8 @@ public class MainActivity extends ProgressBarActivity {
     }
 
     private void setDataFromModel() {
-        balance.setText(String.format("%5d", (int)currentBalance));
+        final int b = ((CashlessApplication)getApplication()).getBalanceUpdater().getBalance();
+        balance.setText(String.format("%5d", b));
+        Log.d(TAG, String.format("Balance on Screen = %5d", b));
     }
 }
