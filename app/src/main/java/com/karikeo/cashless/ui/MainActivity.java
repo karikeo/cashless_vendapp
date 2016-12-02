@@ -93,7 +93,7 @@ public class MainActivity extends ProgressBarActivity {
         uploadToServer(t);
 /*REMOVE*/
 
-
+/*
         Log.d(TAG, "Balance from the Server:" + currentBalance);
         TransactionDataSource db = ((CashlessApplication)getApplication()).getDbAccess();
         if (db == null){
@@ -108,7 +108,7 @@ public class MainActivity extends ProgressBarActivity {
         }
         setDataFromModel();
         Log.d(TAG, "Local balance:" + currentBalance);
-
+*/
         Transaction[] transactions = ((CashlessApplication)getApplication()).getDbAccess().getTransactions();
         if ( transactions != null ) {
             uploadToServer(transactions);
