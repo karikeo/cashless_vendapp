@@ -25,14 +25,11 @@ import com.karikeo.cashless.bt.BTOpenPortStatus;
 import com.karikeo.cashless.bt.CommInterface;
 import com.karikeo.cashless.bt.Communication;
 import com.karikeo.cashless.bt.OutputStream;
-import com.karikeo.cashless.db.Transaction;
 import com.karikeo.cashless.db.TransactionDataSource;
 import com.karikeo.cashless.protocol.CoderDecoderInterface;
 import com.karikeo.cashless.protocol.CoderDecoderInterfaceImpl;
 import com.karikeo.cashless.protocol.CommandInterface;
 import com.karikeo.cashless.protocol.CommandInterfaceImpl;
-import com.karikeo.cashless.serverrequests.AsyncSendTransaction;
-import com.karikeo.cashless.serverrequests.OnAsyncServerRequest;
 import com.karikeo.cashless.serverrequests.PropertyFields;
 import com.karikeo.cashless.ui.barcode.BarcodeCaptureActivity;
 
@@ -76,8 +73,6 @@ public class MainActivity extends ProgressBarActivity {
 
         Bundle b = getIntent().getExtras();
         if (b != null){
-//            currentBalance = Float.valueOf(b.getString(PropertyFields.BALANCE, "0"));
-//            serverBalance = currentBalance;
             email = b.getString(PropertyFields.EMAIL);
         }
 
@@ -90,29 +85,6 @@ public class MainActivity extends ProgressBarActivity {
         uploadToServer(t);
 /*REMOVE*/
 
-/*
-        Log.d(TAG, "Balance from the Server:" + currentBalance);
-        TransactionDataSource db = ((CashlessApplication)getApplication()).getDbAccess();
-        if (db == null){
-            db = new TransactionDataSource(getApplication().getApplicationContext());
-            ((CashlessApplication)getApplication()).setTransactionAccess(db);
-        } else {
-            currentBalance -= db.getBalanceDeltaFromAllTransactions();
-        }
-
-        if (currentBalance < 0){
-            currentBalance = 0;
-        }
-        setDataFromModel();
-        Log.d(TAG, "Local balance:" + currentBalance);
-*/
-/*
-        Transaction[] transactions = ((CashlessApplication)getApplication()).getDbAccess().getTransactions();
-        if ( transactions != null ) {
-            uploadToServer(transactions);
-            serverBalance = currentBalance;
-        }
-*/
         setupCommunication();
 
         if (Constants.DEBUG != 0){
@@ -161,24 +133,6 @@ public class MainActivity extends ProgressBarActivity {
         blueToothControl.registerOnRawData((Communication.DataCallback) cd);
         cd.registerOnPacketListener((CommandInterfaceImpl)comm);
 
-    }
-
-    private void uploadToServer(Transaction[] transactions){
-        for (final Transaction tr : transactions){
-            AsyncSendTransaction aT = new AsyncSendTransaction(tr, new OnAsyncServerRequest(){
-
-                @Override
-                public void OnOk(Bundle bundle) {
-                    ((CashlessApplication)getApplication()).getDbAccess().deleteTransaction(tr);
-                }
-
-                @Override
-                public void OnError(String msg) {
-
-                }
-            });
-            aT.execute();
-        }
     }
 
     @Override
@@ -268,7 +222,7 @@ public class MainActivity extends ProgressBarActivity {
             return;
         }
 
-        if (blueToothControl.isConnected() == false) {
+        if (!blueToothControl.isConnected()) {
             blueToothControl.addAsyncResponseListener(new BTOpenPortStatus() {
                 @Override
                 public void onBTOpenPortDone() {

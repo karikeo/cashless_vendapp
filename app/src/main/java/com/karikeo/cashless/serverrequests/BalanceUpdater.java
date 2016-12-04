@@ -30,7 +30,12 @@ public class BalanceUpdater {
 
     public int getBalance(){
         updateBalance();
-        return (int) (serverBalance - localBalance);
+        return getInternalBalance();
+    }
+
+    private int getInternalBalance(){
+        final int lb = (int) (serverBalance - localBalance);
+        return (lb >= 0) ? lb : 0;
     }
 
     public void registerListener(OnBalanceUpdateListener update){
@@ -43,8 +48,13 @@ public class BalanceUpdater {
 
     }
 
-    public void updateBalance(Transaction t){
-
+    //This functions used to get dirty balance it means that one transaction doesn't sore in the db.
+    //Income transaction can be removed in case of error from VND.
+    //So we need calculate balance without changing internal state.
+    public int getDirtyBalance(Transaction t){
+        final int lb = getInternalBalance();
+        final int tb = lb - Float.valueOf(t.getBalanceDelta()).intValue();
+        return tb >= 0 ? tb : 0;
     }
 
     public void getBalanceFromServer(String login, String pwd){
@@ -60,7 +70,7 @@ public class BalanceUpdater {
                     localBalance = db.getBalanceDeltaFromAllTransactions();
 
                     if (listener != null) {
-                        listener.onUpdate((int)(serverBalance - localBalance));
+                        listener.onUpdate(getInternalBalance());
                     }
                     Log.d(TAG, String.format("Updated from server with:%5d", b));
                 }
@@ -90,7 +100,7 @@ public class BalanceUpdater {
                     localBalance = db.getBalanceDeltaFromAllTransactions();
 
                     if (listener!= null){
-                        listener.onUpdate((int)(serverBalance - localBalance));
+                        listener.onUpdate(getInternalBalance());
                     }
                 }
 
