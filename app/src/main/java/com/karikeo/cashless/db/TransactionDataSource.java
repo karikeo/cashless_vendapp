@@ -66,7 +66,7 @@ public class TransactionDataSource {
     }
 
     public Float getBalanceDeltaFromAllTransactions(){
-        if (!database.isOpen())
+        if (database == null || !database.isOpen())
             open();
 
         Cursor cursor = null;

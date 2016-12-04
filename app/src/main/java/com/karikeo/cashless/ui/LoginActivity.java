@@ -42,12 +42,6 @@ public class LoginActivity extends ProgressBarActivity {
             }
         });
 
-        SharedPreferences settings = getSharedPreferences(SHARED_PREFS, 0);
-        final String storedEmail = settings.getString(SHARED_PREFS_EMAIL, null);
-        if (storedEmail != null) {
-            login.setText(storedEmail);
-            password.requestFocus();
-        }
 
         TransactionDataSource db = ((CashlessApplication)getApplication()).getDbAccess();
         if (db == null){
@@ -62,6 +56,21 @@ public class LoginActivity extends ProgressBarActivity {
         if (Constants.DEBUG != 0) {
             //onBalanceUpdated();
             login("spb@gmail.com", "1111");
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        login.setText("");
+        password.setText("");
+
+        SharedPreferences settings = getSharedPreferences(SHARED_PREFS, 0);
+        final String storedEmail = settings.getString(SHARED_PREFS_EMAIL, null);
+        if (storedEmail != null) {
+            login.setText(storedEmail);
+            password.requestFocus();
         }
     }
 
@@ -98,8 +107,10 @@ public class LoginActivity extends ProgressBarActivity {
         SharedPreferences settings = getSharedPreferences(SHARED_PREFS, 0);
         SharedPreferences.Editor editor = settings.edit();
         editor.putString(SHARED_PREFS_EMAIL, email);
+        editor.commit();
         updateBalance();
     }
+
 
 
     private void updateBalance() {

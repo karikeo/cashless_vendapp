@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Vibrator;
@@ -33,6 +34,8 @@ import com.karikeo.cashless.protocol.CommandInterfaceImpl;
 import com.karikeo.cashless.serverrequests.PropertyFields;
 import com.karikeo.cashless.ui.barcode.BarcodeCaptureActivity;
 
+import static com.karikeo.cashless.CashlessApplication.SHARED_PREFS;
+import static com.karikeo.cashless.CashlessApplication.SHARED_PREFS_EMAIL;
 
 
 public class MainActivity extends ProgressBarActivity {
@@ -71,6 +74,18 @@ public class MainActivity extends ProgressBarActivity {
             }
         });
 
+        findViewById(R.id.logout).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SharedPreferences settings = getSharedPreferences(SHARED_PREFS, 0);
+                SharedPreferences.Editor editor = settings.edit();
+                editor.putString(SHARED_PREFS_EMAIL, null);
+                editor.commit();
+
+                finish();
+            }
+        });
+
         Bundle b = getIntent().getExtras();
         if (b != null){
             email = b.getString(PropertyFields.EMAIL);
@@ -98,6 +113,7 @@ public class MainActivity extends ProgressBarActivity {
         super.onResume();
         setDataFromModel();
     }
+
 
     /*Setup communication chain*/
     private void setupCommunication() {

@@ -44,7 +44,9 @@ public class BalanceUpdater {
 
     public void updateBalance(){
         //try to upload everything to the server and get server balance after this
-        uploadToServer(db.getTransactions());
+        final Transaction t[] = db.getTransactions();
+        if (t != null)
+            uploadToServer(t);
 
     }
 
