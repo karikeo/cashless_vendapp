@@ -10,6 +10,8 @@ import com.karikeo.cashless.protocol.CommandInterface;
 import com.karikeo.cashless.serverrequests.BalanceUpdater;
 
 public class CashlessApplication extends Application{
+    public static final String SHARED_PREFS = "shared_preferences";
+    public static final String SHARED_PREFS_EMAIL = "stored_email";
 
     private CommInterface commInterface;
     private CoderDecoderInterface codeInterface;

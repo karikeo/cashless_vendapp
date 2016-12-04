@@ -1,6 +1,7 @@
 package com.karikeo.cashless.ui;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -15,6 +16,9 @@ import com.karikeo.cashless.db.TransactionDataSource;
 import com.karikeo.cashless.serverrequests.BalanceUpdater;
 import com.karikeo.cashless.serverrequests.PropertyFields;
 
+import static com.karikeo.cashless.CashlessApplication.SHARED_PREFS;
+import static com.karikeo.cashless.CashlessApplication.SHARED_PREFS_EMAIL;
+
 public class LoginActivity extends ProgressBarActivity {
     private final static String TAG = "LoginActivity";
 
@@ -22,7 +26,6 @@ public class LoginActivity extends ProgressBarActivity {
     private TextView password;
     private Button loginButton;
 
-    private String money = "0";
     private String email;
 
     @Override
@@ -39,6 +42,12 @@ public class LoginActivity extends ProgressBarActivity {
             }
         });
 
+        SharedPreferences settings = getSharedPreferences(SHARED_PREFS, 0);
+        final String storedEmail = settings.getString(SHARED_PREFS_EMAIL, null);
+        if (storedEmail != null) {
+            login.setText(storedEmail);
+            password.requestFocus();
+        }
 
         TransactionDataSource db = ((CashlessApplication)getApplication()).getDbAccess();
         if (db == null){
@@ -69,7 +78,6 @@ public class LoginActivity extends ProgressBarActivity {
         b.registerListener(new BalanceUpdater.OnBalanceUpdateListener() {
             @Override
             public void onUpdate(int balance) {
-                money = Integer.toString(balance);
                 email = login;
                 onLogin();
 
@@ -84,6 +92,16 @@ public class LoginActivity extends ProgressBarActivity {
         b.getBalanceFromServer(login, password);
     }
 
+
+    public void onLogin() {
+        //Store used email to restore nex time.
+        SharedPreferences settings = getSharedPreferences(SHARED_PREFS, 0);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString(SHARED_PREFS_EMAIL, email);
+        updateBalance();
+    }
+
+
     private void updateBalance() {
         showProgress(R.string.update_balance);
         loginButton.postDelayed(new Runnable() {
@@ -94,13 +112,9 @@ public class LoginActivity extends ProgressBarActivity {
         }, 2000);
     }
 
-    public void onLogin() {
-        updateBalance();
-    }
 
     public void onBalanceUpdated() {
         Bundle b = new Bundle();
-//        b.putString(PropertyFields.BALANCE,  money);
         b.putString(PropertyFields.EMAIL, email);
 
         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
