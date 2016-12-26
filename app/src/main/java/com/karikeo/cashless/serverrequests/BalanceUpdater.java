@@ -93,6 +93,7 @@ public class BalanceUpdater {
 
     private void uploadToServer(Transaction[] transactions){
         for (final Transaction tr : transactions){
+            db.updateSent(tr, 1);
             AsyncSendTransaction aT = new AsyncSendTransaction(tr, new OnAsyncServerRequest(){
 
                 @Override
@@ -104,10 +105,12 @@ public class BalanceUpdater {
                     if (listener!= null){
                         listener.onUpdate(getInternalBalance());
                     }
+                    Log.d(TAG, String.format("Removed transaction: %d",tr.getId()));
                 }
 
                 @Override
                 public void OnError(String msg) {
+                    db.updateSent(tr, 0);
                     Log.d(TAG, String.format("Can't upload transaction to the server with msg:%s", msg));
                 }
             });
