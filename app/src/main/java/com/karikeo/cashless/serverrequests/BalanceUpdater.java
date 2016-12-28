@@ -94,6 +94,8 @@ public class BalanceUpdater {
     private void uploadToServer(Transaction[] transactions){
         for (final Transaction tr : transactions){
             db.updateSent(tr, 1);
+            serverBalance -= Float.valueOf(tr.getBalanceDelta()).intValue();
+
             AsyncSendTransaction aT = new AsyncSendTransaction(tr, new OnAsyncServerRequest(){
 
                 @Override
@@ -112,6 +114,8 @@ public class BalanceUpdater {
                 public void OnError(String msg) {
                     db.updateSent(tr, 0);
                     Log.d(TAG, String.format("Can't upload transaction to the server with msg:%s", msg));
+
+                    serverBalance += Float.valueOf(tr.getBalanceDelta()).intValue();
                 }
             });
             aT.execute();
