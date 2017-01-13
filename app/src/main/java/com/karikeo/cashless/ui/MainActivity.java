@@ -35,7 +35,7 @@ import com.karikeo.cashless.serverrequests.AsyncSendTransaction;
 import com.karikeo.cashless.serverrequests.OnAsyncServerRequest;
 import com.karikeo.cashless.serverrequests.PropertyFields;
 import com.karikeo.cashless.ui.barcode.BarcodeCaptureActivity;
-
+import com.karikeo.cashless.ui.nfcActivity.NfcActivity;
 
 
 public class MainActivity extends ProgressBarActivity {
@@ -74,6 +74,13 @@ public class MainActivity extends ProgressBarActivity {
                 }else {
                     startCapturingCode();
                 }
+            }
+        });
+
+        findViewById(R.id.nfc_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity( new Intent(MainActivity.this, NfcActivity.class));
             }
         });
 

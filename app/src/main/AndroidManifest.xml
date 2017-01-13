@@ -3,13 +3,15 @@
     package="com.karikeo.cashless">
 
     <uses-feature android:name="android.hardware.camera" />
+    <uses-feature android:name="android.hardware.nfc" />
+    <uses-feature android:name="android.hardware.bluetooth" android:required="true"/>
 
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.VIBRATE"/>
-
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.NFC" />
 
     <application
         android:name=".CashlessApplication"
@@ -30,6 +32,15 @@
         <activity android:name=".ui.barcode.BarcodeCaptureActivity" android:screenOrientation="sensorPortrait"/>
         <activity android:name=".ui.SuccessfulConnectActivity" android:screenOrientation="sensorPortrait"/>
         <activity android:name=".ui.ProgressBarActivity" android:screenOrientation="sensorPortrait"></activity>
+        <activity android:name=".ui.nfcActivity.NfcActivity" android:screenOrientation="sensorPortrait">
+            <intent-filter>
+                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+            <meta-data android:name="android.nfc.action.NDEF_DISCOVERED"
+                android:resource="@xml/nfc_tech_filter" />
+        </activity>
     </application>
 
 </manifest>
