@@ -1,25 +1,31 @@
 package com.karikeo.cashless.ui;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.karikeo.cashless.CashlessApplication;
 import com.karikeo.cashless.Constants;
 import com.karikeo.cashless.R;
-import com.karikeo.cashless.serverrequests.AsyncGetBalance;
-import com.karikeo.cashless.serverrequests.OnAsyncServerRequest;
+import com.karikeo.cashless.db.TransactionDataSource;
+import com.karikeo.cashless.serverrequests.BalanceUpdater;
 import com.karikeo.cashless.serverrequests.PropertyFields;
 
+import static com.karikeo.cashless.CashlessApplication.SHARED_PREFS;
+import static com.karikeo.cashless.CashlessApplication.SHARED_PREFS_EMAIL;
+
 public class LoginActivity extends ProgressBarActivity {
+    private final static String TAG = "LoginActivity";
 
     private TextView login;
     private TextView password;
     private Button loginButton;
 
-    private String balance = "0";
     private String email;
 
     @Override
@@ -36,9 +42,35 @@ public class LoginActivity extends ProgressBarActivity {
             }
         });
 
+
+        TransactionDataSource db = ((CashlessApplication)getApplication()).getDbAccess();
+        if (db == null){
+            db = new TransactionDataSource(getApplication().getApplicationContext());
+            ((CashlessApplication)getApplication()).setTransactionAccess(db);
+        }
+
+        BalanceUpdater b = new BalanceUpdater(db);
+        ((CashlessApplication)getApplication()).setBalanceUpdater(b);
+
+
         if (Constants.DEBUG != 0) {
             //onBalanceUpdated();
             login("spb@gmail.com", "1111");
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        login.setText("");
+        password.setText("");
+
+        SharedPreferences settings = getSharedPreferences(SHARED_PREFS, 0);
+        final String storedEmail = settings.getString(SHARED_PREFS_EMAIL, null);
+        if (storedEmail != null) {
+            login.setText(storedEmail);
+            password.requestFocus();
         }
     }
 
@@ -51,21 +83,35 @@ public class LoginActivity extends ProgressBarActivity {
         UIUtil.hideKeyboard(loginButton);
         showProgress(R.string.logging_in);
 
-        AsyncGetBalance b = new AsyncGetBalance(login, password, new OnAsyncServerRequest() {
+        final BalanceUpdater b = ((CashlessApplication)getApplication()).getBalanceUpdater();
+        b.registerListener(new BalanceUpdater.OnBalanceUpdateListener() {
             @Override
-            public void OnOk(Bundle bundle) {
-                balance = bundle.getString(PropertyFields.BALANCE);
+            public void onUpdate(int balance) {
                 email = login;
                 onLogin();
+
+                b.registerListener(null);
             }
 
             @Override
-            public void OnError(String msg) {
-                //Ooops something wrong
+            public void onError() {
+                Log.d(TAG, String.format("Can't login to the server"));
             }
         });
-        b.execute();
+        b.getBalanceFromServer(login, password);
     }
+
+
+    public void onLogin() {
+        //Store used email to restore nex time.
+        SharedPreferences settings = getSharedPreferences(SHARED_PREFS, 0);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString(SHARED_PREFS_EMAIL, email);
+        editor.commit();
+        updateBalance();
+    }
+
+
 
     private void updateBalance() {
         showProgress(R.string.update_balance);
@@ -77,13 +123,9 @@ public class LoginActivity extends ProgressBarActivity {
         }, 2000);
     }
 
-    public void onLogin() {
-        updateBalance();
-    }
 
     public void onBalanceUpdated() {
         Bundle b = new Bundle();
-        b.putString(PropertyFields.BALANCE,  balance);
         b.putString(PropertyFields.EMAIL, email);
 
         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
