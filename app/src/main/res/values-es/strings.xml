@@ -10,9 +10,10 @@
     <string name="see_my_transactions">Ver mis Transacciones</string>
     <string name="your_balance_is">Tu Saldo es</string>
     <string name="connect_to_machine">Conectar a Maquina</string>
-    <string name="nfc_button">NFC</string>
-    <string name="qr_code_button">QR CODE</string>
-    <string name="machine_series_button">Serie De Maquina</string>
+    <string name="nfc_button">parear NFC</string>
+    <string name="qr_code_button">parear QR</string>
+    <string name="serial_button">parear Serie</string>
+    <string name="transactions_button">mis Compras</string>
 
     <string name="ok">OK</string>
     <string name="permission_camera_rationale">Access to the camera is needed for detection</string>
