@@ -7,9 +7,7 @@
     <string name="update_balance">Actualizando Saldo…</string>
     <string name="logging_in">Iniciando Session…</string>
 
-    <string name="see_my_transactions">Ver mis Transacciones</string>
-    <string name="your_balance_is">Tu Saldo es</string>
-    <string name="connect_to_machine">Conectar a Maquina</string>
+    <string name="your_balance">mi Saldo</string>
     <string name="nfc_button">parear NFC</string>
     <string name="qr_code_button">parear QR</string>
     <string name="serial_button">parear Serie</string>
@@ -19,11 +17,9 @@
     <string name="permission_camera_rationale">Access to the camera is needed for detection</string>
     <string name="no_camera_permission">This application cannot run because it does not have the camera permission.  The application will now exit.</string>
     <string name="low_storage_error">Face detector dependencies cannot be downloaded due to low device storage</string>
-    <string name="barcode_success">Barcode read successfully</string>
     <string name="barcode_failure">No barcode captured</string>
     <string name="barcode_error">"Error reading barcode: %1$s"</string>
 
-    <string name="connecting">Connecting…</string>
     <string name="balance">Saldo</string>
     <string name="connected_to_machine">Conecctado a maquina</string>
     <string name="disconnect">Desconectar</string>
