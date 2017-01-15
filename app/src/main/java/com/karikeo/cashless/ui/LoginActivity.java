@@ -35,11 +35,11 @@ public class LoginActivity extends ProgressBarActivity {
                 login(login.getText().toString(), password.getText().toString());
             }
         });
-
+/*
         if (Constants.DEBUG != 0) {
             //onBalanceUpdated();
             login("spb@gmail.com", "1111");
-        }
+        }*/
     }
 
     @Override

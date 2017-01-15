@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">Cashless</string>
-    <string name="login">Login</string>
-    <string name="password">Password</string>
-    <string name="login_button">Iniciar Session</string>
+    <string name="login">correo</string>
+    <string name="password">contraseña</string>
+    <string name="login_button">login</string>
     <string name="vendapp">VendApp</string>
     <string name="update_balance">Actualizando Saldo…</string>
     <string name="logging_in">Iniciando Session…</string>
@@ -23,5 +23,6 @@
     <string name="balance">Saldo</string>
     <string name="connected_to_machine">Conecctado a maquina</string>
     <string name="disconnect">Desconectar</string>
+    <string name="by">by</string>
 
 </resources>

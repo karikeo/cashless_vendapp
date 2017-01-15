@@ -25,4 +25,5 @@
     <string name="balance">Balance</string>
     <string name="connected_to_machine">Connected to Machine</string>
     <string name="disconnect">Disconnect</string>
+    <string name="by">by</string>
 </resources>
