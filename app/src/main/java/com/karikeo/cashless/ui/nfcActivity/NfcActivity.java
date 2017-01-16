@@ -2,17 +2,23 @@ package com.karikeo.cashless.ui.nfcActivity;
 
 
 import android.app.PendingIntent;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.nfc.NfcAdapter;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
+import com.karikeo.cashless.R;
+
 public class NfcActivity extends AppCompatActivity implements NfcActivityContract.View{
     private final static String TAG = NfcActivity.class.getSimpleName();
+
+    public final static String MAC_ADDR = "macAddr";
 
     private NfcActivityPresenter presenter;
 
@@ -66,6 +72,22 @@ public class NfcActivity extends AppCompatActivity implements NfcActivityContrac
     }
 
     @Override
+    public void finishWithNoResults(){
+        finish();
+    }
+
+    @Override
+    public void finishWithResult(int code, String data) {
+        if (data != null){
+            setResult(code, new Intent().putExtra(MAC_ADDR, data));
+        }else{
+            setResult(code);
+        }
+
+        finishWithNoResults();
+    }
+
+    @Override
     public void enableNfcForeground() {
         Log.d(TAG, "enableNfcForeground");
         Intent nfcIntent = new Intent(this, getClass());
@@ -94,5 +116,19 @@ public class NfcActivity extends AppCompatActivity implements NfcActivityContrac
     public void disableNfcForeground() {
         Log.d(TAG, "disableNfcForeground");
         NfcAdapter.getDefaultAdapter(this).disableForegroundDispatch(this);
+    }
+
+    @Override
+    public void showErrorPopUp() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.nfc_tag_error);
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.create().show();
     }
 }

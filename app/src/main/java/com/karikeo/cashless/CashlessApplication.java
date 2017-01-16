@@ -51,7 +51,7 @@ public class CashlessApplication extends Application{
         TransactionDataSource db = new TransactionDataSource(this);
         setTransactionAccess(db);
 
-        BalanceUpdater b = new BalanceUpdater(db);
+        BalanceUpdater b = new BalanceUpdater(db, storage, this);
         setBalanceUpdater(b);
 
         storage = new LocalStorageImpl(this.getSharedPreferences("cashlessapp", MODE_PRIVATE));

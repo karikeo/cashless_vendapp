@@ -10,6 +10,10 @@ public class NfcActivityContract {
         void enableNfcAdapter(int code);
         void enableNfcForeground();
         void disableNfcForeground();
+        void showErrorPopUp();
+
+        void finishWithNoResults();
+        void finishWithResult(int code, String data);
     }
 
     interface Action{

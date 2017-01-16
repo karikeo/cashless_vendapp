@@ -13,8 +13,8 @@ import com.karikeo.cashless.Constants;
 import com.karikeo.cashless.model.InternetStatus;
 import com.karikeo.cashless.R;
 import com.karikeo.cashless.model.NfcTagValidator;
+import com.karikeo.cashless.model.localstorage.LocalStorage;
 import com.karikeo.cashless.serverrequests.BalanceUpdater;
-import com.karikeo.cashless.serverrequests.PropertyFields;
 
 public class LoginActivity extends ProgressBarActivity {
     private final static String TAG = "LoginActivity";
@@ -24,6 +24,8 @@ public class LoginActivity extends ProgressBarActivity {
     private Button loginButton;
 
     private String email;
+
+    private String macAddr;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -39,18 +41,18 @@ public class LoginActivity extends ProgressBarActivity {
             }
         });
 
-/*
+
         if (Constants.DEBUG != 0) {
             //onBalanceUpdated();
             login("spb@gmail.com", "1111");
         }
-*/
+
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        String bt = NfcTagValidator.getBlueToothAddress(getIntent());
+        macAddr = NfcTagValidator.getBlueToothAddress(getIntent());
     }
 
     @Override
@@ -66,12 +68,16 @@ public class LoginActivity extends ProgressBarActivity {
             password.requestFocus();
         }
 
-        String bt = NfcTagValidator.getBlueToothAddress(getIntent());
-/*
-        if (InternetStatus.isOnline(this)){
-            login()
+        macAddr = NfcTagValidator.getBlueToothAddress(getIntent());
+
+        final LocalStorage s = ((CashlessApplication)getApplication()).getLocalStorage();
+
+        if ((InternetStatus.isOnline(this)) && (s.getEmail() != null && s.getHashKey () !=null)){
+                login(s.getEmail(), s.getHashKey());
+        }else{
+            //how we check that we works offline???
+                onBalanceUpdated();
         }
-*/
     }
 
     @Override
@@ -79,7 +85,7 @@ public class LoginActivity extends ProgressBarActivity {
         return R.layout.activity_login;
     }
 
-    private void login(final String login, String password) {
+    private void login(final String login, final String password) {
         UIUtil.hideKeyboard(loginButton);
         showProgress(R.string.logging_in);
 
@@ -88,6 +94,7 @@ public class LoginActivity extends ProgressBarActivity {
             @Override
             public void onUpdate(int balance) {
                 email = login;
+                ((CashlessApplication)getApplication()).getLocalStorage().setHashKey(password);
                 onLogin();
 
                 b.registerListener(null);
@@ -96,6 +103,7 @@ public class LoginActivity extends ProgressBarActivity {
             @Override
             public void onError() {
                 Log.d(TAG, String.format("Can't login to the server"));
+                showContent();
             }
         });
         b.getBalanceFromServer(login, password);
@@ -122,16 +130,18 @@ public class LoginActivity extends ProgressBarActivity {
 
 
     public void onBalanceUpdated() {
-        ((CashlessApplication)getApplication()).getLocalStorage().setHashKey(password.getText().toString());
-
 
         Bundle b = new Bundle();
-        b.putString(PropertyFields.EMAIL, email);
+        b.putString(MainActivity.EMAIL_KEY, email);
+        if (macAddr != null){
+            b.putString(MainActivity.MACADDR_KEY, macAddr);
+        }
 
         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
         intent.putExtras(b);
 
         startActivity(intent);
+        finish();
     }
 
 }

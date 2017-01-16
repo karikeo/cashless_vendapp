@@ -1,12 +1,13 @@
 package com.karikeo.cashless.serverrequests;
 
 
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.karikeo.cashless.CashlessApplication;
 import com.karikeo.cashless.db.Transaction;
 import com.karikeo.cashless.db.TransactionDataSource;
+import com.karikeo.cashless.model.localstorage.LocalStorage;
 
 public class BalanceUpdater {
     private static final String TAG = "BalanceUpdater";
@@ -15,6 +16,8 @@ public class BalanceUpdater {
 
     private float localBalance, serverBalance;
     private TransactionDataSource db;
+    LocalStorage storage;
+    Context context;
 
     public interface OnBalanceUpdateListener{
         void onUpdate(int balance);
@@ -24,13 +27,15 @@ public class BalanceUpdater {
     OnBalanceUpdateListener listener;
 
 
-    public BalanceUpdater(TransactionDataSource db){
+    public BalanceUpdater(TransactionDataSource db, LocalStorage storage, Context context){
         this.db = db;
+        this.storage = storage;
+        this.context = context;
     }
 
 
     public int getBalance(){
-        updateBalance();
+        updateBalanceOnServer();
         return getInternalBalance();
     }
 
@@ -43,12 +48,11 @@ public class BalanceUpdater {
         listener = update;
     }
 
-    public void updateBalance(){
-        //try to upload everything to the server and get server balance after this
-        final Transaction t[] = db.getTransactions();
-        if (t != null)
-            uploadToServer(t);
-
+    public void updateBalanceOnServer(){
+            //try to upload everything to the server and get server balance after this
+            final Transaction t[] = db.getTransactions();
+            if (t != null)
+                uploadToServer(t);
     }
 
     //This functions used to get dirty balance it means that one transaction doesn't sore in the db.

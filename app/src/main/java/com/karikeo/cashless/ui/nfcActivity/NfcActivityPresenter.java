@@ -3,14 +3,11 @@ package com.karikeo.cashless.ui.nfcActivity;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.nfc.NdefMessage;
-import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
-import java.nio.charset.StandardCharsets;
+import com.karikeo.cashless.model.NfcTagValidator;
+
 
 public class NfcActivityPresenter implements NfcActivityContract.Action, NfcActivityContract.LifeCycle{
     private final static String TAG =  NfcActivityPresenter.class.getSimpleName();
@@ -30,7 +27,7 @@ public class NfcActivityPresenter implements NfcActivityContract.Action, NfcActi
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == ENABLE_NFC_CODE){
             if (resultCode == Activity.RESULT_CANCELED){
-                //TODO:Oops can't work here without finish.
+                listener.finishWithResult(requestCode, null);
             }
         }
     }
@@ -42,29 +39,15 @@ public class NfcActivityPresenter implements NfcActivityContract.Action, NfcActi
 
     @Override
     public void onNewIntent(Intent intent) {
-        final String a = intent.getAction();
-        Log.d(TAG, String.format("onNewIntent: %s", a));
-        if (intent != null && NfcAdapter.ACTION_NDEF_DISCOVERED.equals(intent.getAction())){
-            Parcelable[] rawMessage =
-                    intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+        //Verify NFC tag.
+        if (!NfcAdapter.ACTION_NDEF_DISCOVERED.equals(intent.getAction()))
+            return;
 
-            if (rawMessage != null){
-                NdefMessage[] messages = new NdefMessage[rawMessage.length];
-                for (int i = 0; i<rawMessage.length; i++){
-                    messages[i] = (NdefMessage) rawMessage[i];
-                    NdefRecord[] records = messages[i].getRecords();
-                        for (NdefRecord rec : records){
-                            byte[] payloadData = rec.getPayload();
-                            Log.d(TAG, String.format("Payload income: %s", new String(payloadData)));
-                            byte[] typeData = rec.getType();
-                            Log.d(TAG, String.format("Type income: %s", new String(typeData)));
-                            byte[] typeID = rec.getId();
-                            Log.d(TAG, String.format("ID income: %s", new String(typeID)));
-                        }
-                        // do something with the payload (data passed through your NDEF record)
-                        // or process remaining NDEF message
-                }
-            }
+        String mac = NfcTagValidator.getBlueToothAddress(intent);
+        if (mac == null){
+            listener.showErrorPopUp();
+        }else {
+            listener.finishWithResult(Activity.RESULT_OK, mac);
         }
     }
 

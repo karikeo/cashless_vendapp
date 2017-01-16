@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Vibrator;
@@ -35,6 +34,8 @@ import com.karikeo.cashless.serverrequests.PropertyFields;
 import com.karikeo.cashless.ui.barcode.BarcodeCaptureActivity;
 import com.karikeo.cashless.ui.nfcActivity.NfcActivity;
 
+import static com.karikeo.cashless.ui.nfcActivity.NfcActivity.MAC_ADDR;
+
 
 public class MainActivity extends ProgressBarActivity {
     private final static String TAG = "MainActivity";
@@ -43,8 +44,13 @@ public class MainActivity extends ProgressBarActivity {
     private static final int PM_CAMERA_PERMISSION_REQUEST = 0x9002;
     private static final int PM_BT_PERMISSION_REQUEST = 0x9003;
 
+    private static final int NFC_REQUEST = 0x9100;
+
     private static String[] PERMISSIONS_BT = {Manifest.permission.BLUETOOTH,
             Manifest.permission.BLUETOOTH_ADMIN};
+
+    public static final String EMAIL_KEY = "email";
+    public static final String MACADDR_KEY = "macaddr";
 
     private TextView balance;
 
@@ -52,6 +58,7 @@ public class MainActivity extends ProgressBarActivity {
     private String qrCode;
 
     private String email;
+    private String macAddr;
 
 
     @Override
@@ -75,8 +82,8 @@ public class MainActivity extends ProgressBarActivity {
         findViewById(R.id.logout).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((CashlessApplication)getApplication()).getLocalStorage().setEmail(null);
-
+                ((CashlessApplication)getApplication()).getLocalStorage().setHashKey(null);
+                startActivity(new Intent(MainActivity.this, LoginActivity.class));
                 finish();
             }
         });
@@ -84,13 +91,14 @@ public class MainActivity extends ProgressBarActivity {
         findViewById(R.id.nfc_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity( new Intent(MainActivity.this, NfcActivity.class));
+                startActivityForResult(new Intent(MainActivity.this, NfcActivity.class), NFC_REQUEST);
             }
         });
 
         Bundle b = getIntent().getExtras();
         if (b != null){
-            email = b.getString(PropertyFields.EMAIL);
+            email = b.getString(EMAIL_KEY);
+            macAddr = b.getString(MACADDR_KEY);
         }
 
 /*TODO REMOVE*//*
@@ -104,7 +112,11 @@ public class MainActivity extends ProgressBarActivity {
 
         setupCommunication();
 
-        if (Constants.DEBUG != 0){
+        if (MACADDR_KEY != null){
+            connect(macAddr);
+        }
+
+        if (Constants.DEBUG != 0 && MACADDR_KEY == null){
             //currentBalance = 10002;
             connect("10:14:07:10:29:10");
         }
@@ -204,9 +216,18 @@ public class MainActivity extends ProgressBarActivity {
             } else {
                 blueToothControl.onDeviceEnabled();
             }
+        } else if (requestCode == NFC_REQUEST){
+            if (resultCode == Activity.RESULT_OK){
+                connect(data.getStringExtra(MAC_ADDR));
+            }
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
     }
 
     @Override
