@@ -13,7 +13,7 @@ import java.util.Calendar;
 
 public class CommandInterfaceImpl implements CommandInterface, CoderDecoderInterfaceImpl.OnPacket,
         OutputStream{
-    private static final String TAG = "CommandInterfaceImpl";
+    private static final String TAG = CommandInterfaceImpl.class.getSimpleName();
     private static final String COMMAND_BALANCE = "BALANCE=";
     private static final String COMMAND_CANCEL = "CANCEL";
 

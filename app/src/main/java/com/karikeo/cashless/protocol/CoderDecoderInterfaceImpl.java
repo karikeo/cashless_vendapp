@@ -15,7 +15,7 @@ import java.util.Calendar;
 //This class is one more layer in case we need to add transport information like CRC ID and so one.
 public class CoderDecoderInterfaceImpl implements CoderDecoderInterface, Communication.DataCallback,
 OutputStream{
-    private static final String TAG = "protocol.CoderDecoderInterfaceImpl";
+    private static final String TAG = CoderDecoderInterfaceImpl.class.getSimpleName();
 /*
     @Override
     public void write(byte[] b) throws IOException {
