@@ -47,7 +47,9 @@
             android:screenOrientation="sensorPortrait" />
         <activity
             android:name=".ui.ProgressBarActivity"
-            android:screenOrientation="sensorPortrait"></activity>
+            android:screenOrientation="sensorPortrait" />
+        <activity android:name=".ui.nfcActivity.NfcActivity"
+            android:screenOrientation="sensorPortrait" />
     </application>
 
 </manifest>

@@ -42,7 +42,6 @@ public class LoginActivity extends ProgressBarActivity {
         });
 
         if (Constants.DEBUG != 0) {
-            //onBalanceUpdated();
             login("spb@gmail.com", "1111");
         }
 
@@ -69,12 +68,17 @@ public class LoginActivity extends ProgressBarActivity {
 
         macAddr = NfcTagValidator.getBlueToothAddress(getIntent());
 
+        checkLoginAndRun();
+    }
+
+    private void checkLoginAndRun() {
         final LocalStorage s = ((CashlessApplication)getApplication()).getLocalStorage();
 
         if ((InternetStatus.isOnline(this)) && (s.getEmail() != null && s.getHashKey () !=null)){
                 login(s.getEmail(), s.getHashKey());
         }else{
             //how we check that we works offline???
+            if (s.getHashKey()!=null)
                 onBalanceUpdated();
         }
     }
@@ -92,8 +96,8 @@ public class LoginActivity extends ProgressBarActivity {
         b.registerListener(new BalanceUpdater.OnBalanceUpdateListener() {
             @Override
             public void onUpdate(int balance) {
-                email = login;
                 ((CashlessApplication)getApplication()).getLocalStorage().setHashKey(password);
+                email = login;
                 onLogin();
 
                 b.registerListener(null);

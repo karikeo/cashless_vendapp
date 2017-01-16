@@ -79,15 +79,6 @@ public class MainActivity extends ProgressBarActivity {
             }
         });
 
-        findViewById(R.id.logout).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ((CashlessApplication)getApplication()).getLocalStorage().setHashKey(null);
-                startActivity(new Intent(MainActivity.this, LoginActivity.class));
-                finish();
-            }
-        });
-
         findViewById(R.id.nfc_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -228,6 +219,9 @@ public class MainActivity extends ProgressBarActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+        ((CashlessApplication)getApplication()).getLocalStorage().setHashKey(null);
+        startActivity(new Intent(MainActivity.this, LoginActivity.class));
+        finish();
     }
 
     @Override

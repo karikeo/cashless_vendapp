@@ -30,6 +30,8 @@ public class NfcActivity extends AppCompatActivity implements NfcActivityContrac
         Log.d(TAG, String.format("onCreate: Intent : Action : %s", getIntent().getAction()));
 
         presenter = new NfcActivityPresenter(this, NfcAdapter.getDefaultAdapter(this));
+
+        setContentView(R.layout.activity_nfc_capture);
     }
 
     @Override
