@@ -15,7 +15,6 @@ public class BlueToothControl implements CommInterface, OutputStream {
     public static final int REQUEST_ENABLE_BT = 0x922;
 
     private String id;
-    private BlueToothControl control;
     private boolean isConnected = false;
 
     private BluetoothAdapter adapter;
@@ -70,7 +69,7 @@ public class BlueToothControl implements CommInterface, OutputStream {
 
         adapter = BluetoothAdapter.getDefaultAdapter();
 
-        if (!adapter.isEnabled()) {
+        if (adapter == null || !adapter.isEnabled()) {
             Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             activity.startActivityForResult(intent, REQUEST_ENABLE_BT);
             return;
@@ -102,7 +101,7 @@ public class BlueToothControl implements CommInterface, OutputStream {
 
     @Override
     public boolean checkId(String id) {
-        return adapter.checkBluetoothAddress(id);
+        return BluetoothAdapter.checkBluetoothAddress(id);
     }
 
     private Communication.DataCallback callback;

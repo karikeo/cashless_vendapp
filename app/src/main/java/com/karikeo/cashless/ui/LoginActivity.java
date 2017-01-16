@@ -17,7 +17,7 @@ import com.karikeo.cashless.model.localstorage.LocalStorage;
 import com.karikeo.cashless.serverrequests.BalanceUpdater;
 
 public class LoginActivity extends ProgressBarActivity {
-    private final static String TAG = "LoginActivity";
+    private final static String TAG = LoginActivity.class.getSimpleName();
 
     private TextView login;
     private TextView password;
@@ -40,7 +40,6 @@ public class LoginActivity extends ProgressBarActivity {
                 login(login.getText().toString(), password.getText().toString());
             }
         });
-
 
         if (Constants.DEBUG != 0) {
             //onBalanceUpdated();

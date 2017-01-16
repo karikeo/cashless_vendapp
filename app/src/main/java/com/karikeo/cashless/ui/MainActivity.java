@@ -211,7 +211,7 @@ public class MainActivity extends ProgressBarActivity {
                         CommonStatusCodes.getStatusCodeString(resultCode)), Toast.LENGTH_LONG).show();
             }
         } else if (requestCode == BlueToothControl.REQUEST_ENABLE_BT){
-            if (requestCode == Activity.RESULT_CANCELED){
+            if (resultCode == Activity.RESULT_CANCELED){
                 Log.d(TAG, "onActivityResult: Can't work without BlueTooth");
             } else {
                 blueToothControl.onDeviceEnabled();
