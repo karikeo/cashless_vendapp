@@ -35,9 +35,6 @@ import com.karikeo.cashless.serverrequests.PropertyFields;
 import com.karikeo.cashless.ui.barcode.BarcodeCaptureActivity;
 import com.karikeo.cashless.ui.nfcActivity.NfcActivity;
 
-import static com.karikeo.cashless.CashlessApplication.SHARED_PREFS;
-import static com.karikeo.cashless.CashlessApplication.SHARED_PREFS_EMAIL;
-
 
 public class MainActivity extends ProgressBarActivity {
     private final static String TAG = "MainActivity";
@@ -78,10 +75,7 @@ public class MainActivity extends ProgressBarActivity {
         findViewById(R.id.logout).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SharedPreferences settings = getSharedPreferences(SHARED_PREFS, 0);
-                SharedPreferences.Editor editor = settings.edit();
-                editor.putString(SHARED_PREFS_EMAIL, null);
-                editor.commit();
+                ((CashlessApplication)getApplication()).getLocalStorage().setEmail(null);
 
                 finish();
             }
@@ -283,5 +277,7 @@ public class MainActivity extends ProgressBarActivity {
         final int b = ((CashlessApplication)getApplication()).getBalanceUpdater().getBalance();
         balance.setText(String.format("%5d", b));
         Log.d(TAG, String.format("Balance on Screen = %5d", b));
+
+        ((CashlessApplication)getApplication()).getLocalStorage().setLocalBalance(String.format("%5d", b));
     }
 }

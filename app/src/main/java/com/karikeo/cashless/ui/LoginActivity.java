@@ -1,7 +1,6 @@
 package com.karikeo.cashless.ui;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -11,13 +10,11 @@ import android.widget.TextView;
 
 import com.karikeo.cashless.CashlessApplication;
 import com.karikeo.cashless.Constants;
+import com.karikeo.cashless.model.InternetStatus;
 import com.karikeo.cashless.R;
-import com.karikeo.cashless.db.TransactionDataSource;
+import com.karikeo.cashless.model.NfcTagValidator;
 import com.karikeo.cashless.serverrequests.BalanceUpdater;
 import com.karikeo.cashless.serverrequests.PropertyFields;
-
-import static com.karikeo.cashless.CashlessApplication.SHARED_PREFS;
-import static com.karikeo.cashless.CashlessApplication.SHARED_PREFS_EMAIL;
 
 public class LoginActivity extends ProgressBarActivity {
     private final static String TAG = "LoginActivity";
@@ -42,36 +39,39 @@ public class LoginActivity extends ProgressBarActivity {
             }
         });
 
-
-        TransactionDataSource db = ((CashlessApplication)getApplication()).getDbAccess();
-        if (db == null){
-            db = new TransactionDataSource(getApplication().getApplicationContext());
-            ((CashlessApplication)getApplication()).setTransactionAccess(db);
-        }
-
-        BalanceUpdater b = new BalanceUpdater(db);
-        ((CashlessApplication)getApplication()).setBalanceUpdater(b);
-
-
+/*
         if (Constants.DEBUG != 0) {
             //onBalanceUpdated();
             login("spb@gmail.com", "1111");
         }
+*/
     }
 
     @Override
-    protected void onStart() {
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        String bt = NfcTagValidator.getBlueToothAddress(getIntent());
+    }
+
+    @Override
+    protected void onResume() {
         super.onStart();
 
         login.setText("");
         password.setText("");
 
-        SharedPreferences settings = getSharedPreferences(SHARED_PREFS, 0);
-        final String storedEmail = settings.getString(SHARED_PREFS_EMAIL, null);
+        final String storedEmail = ((CashlessApplication)getApplication()).getLocalStorage().getEmail();
         if (storedEmail != null) {
             login.setText(storedEmail);
             password.requestFocus();
         }
+
+        String bt = NfcTagValidator.getBlueToothAddress(getIntent());
+/*
+        if (InternetStatus.isOnline(this)){
+            login()
+        }
+*/
     }
 
     @Override
@@ -104,10 +104,7 @@ public class LoginActivity extends ProgressBarActivity {
 
     public void onLogin() {
         //Store used email to restore nex time.
-        SharedPreferences settings = getSharedPreferences(SHARED_PREFS, 0);
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putString(SHARED_PREFS_EMAIL, email);
-        editor.commit();
+        ((CashlessApplication)getApplication()).getLocalStorage().setEmail(email);
         updateBalance();
     }
 
@@ -125,6 +122,9 @@ public class LoginActivity extends ProgressBarActivity {
 
 
     public void onBalanceUpdated() {
+        ((CashlessApplication)getApplication()).getLocalStorage().setHashKey(password.getText().toString());
+
+
         Bundle b = new Bundle();
         b.putString(PropertyFields.EMAIL, email);
 
