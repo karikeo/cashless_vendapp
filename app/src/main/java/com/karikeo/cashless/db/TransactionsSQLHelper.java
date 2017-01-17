@@ -8,7 +8,7 @@ import android.util.Log;
 
 public class TransactionsSQLHelper extends SQLiteOpenHelper {
 
-    private static final String TAG = "com.karikeo.cashless.db.TransactionsSQLHelper";
+    private static final String TAG = "TransactionsSQLHelper";
 
     public static final String TABLE_TRANSACTION = "transactions";
     public static final String COLUMN_ID = "_id";
@@ -17,9 +17,10 @@ public class TransactionsSQLHelper extends SQLiteOpenHelper {
     public static final String COLUMN_DATE = "date";
     public static final String COLUMN_BALANCE_DELTA = "balance_delta";
     public static final String COLUMN_EMAIL = "email";
+    public static final String COLUMN_SENT = "sent";
 
     private static final String DATABASE_NAME = "transactions.db";
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 4;
 
     // Database creation sql statement
     private static final String DATABASE_CREATE = "CREATE TABLE IF NOT EXISTS "
@@ -29,7 +30,8 @@ public class TransactionsSQLHelper extends SQLiteOpenHelper {
             COLUMN_MACADDR + " TEXT NOT NULL , " +
             COLUMN_DATE + " TEXT NOT NULL , " +
             COLUMN_BALANCE_DELTA + " INTEGER NOT NULL , " +
-            COLUMN_EMAIL + " TEXT NOT NULL" +
+            COLUMN_EMAIL + " TEXT NOT NULL , " +
+            COLUMN_SENT + " BOOLEAN NOT NULL" +
             ");";
 
     public TransactionsSQLHelper(Context context){

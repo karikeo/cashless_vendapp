@@ -6,12 +6,17 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.nfc.NfcAdapter;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,17 +30,16 @@ import com.karikeo.cashless.bt.BTOpenPortStatus;
 import com.karikeo.cashless.bt.CommInterface;
 import com.karikeo.cashless.bt.Communication;
 import com.karikeo.cashless.bt.OutputStream;
-import com.karikeo.cashless.db.Transaction;
 import com.karikeo.cashless.db.TransactionDataSource;
 import com.karikeo.cashless.protocol.CoderDecoderInterface;
 import com.karikeo.cashless.protocol.CoderDecoderInterfaceImpl;
 import com.karikeo.cashless.protocol.CommandInterface;
 import com.karikeo.cashless.protocol.CommandInterfaceImpl;
-import com.karikeo.cashless.serverrequests.AsyncSendTransaction;
-import com.karikeo.cashless.serverrequests.OnAsyncServerRequest;
 import com.karikeo.cashless.serverrequests.PropertyFields;
 import com.karikeo.cashless.ui.barcode.BarcodeCaptureActivity;
+import com.karikeo.cashless.ui.nfcActivity.NfcActivity;
 
+import static com.karikeo.cashless.ui.nfcActivity.NfcActivity.MAC_ADDR;
 
 
 public class MainActivity extends ProgressBarActivity {
@@ -45,19 +49,22 @@ public class MainActivity extends ProgressBarActivity {
     private static final int PM_CAMERA_PERMISSION_REQUEST = 0x9002;
     private static final int PM_BT_PERMISSION_REQUEST = 0x9003;
 
+    private static final int NFC_REQUEST = 0x9100;
+
     private static String[] PERMISSIONS_BT = {Manifest.permission.BLUETOOTH,
             Manifest.permission.BLUETOOTH_ADMIN};
+
+    public static final String EMAIL_KEY = "email";
+    public static final String MACADDR_KEY = "macaddr";
 
     private TextView balance;
 
     private CommInterface blueToothControl;
     private String qrCode;
 
-
-    private float currentBalance = 0;
     private String email;
+    private String macAddr;
 
-    private float serverBalance = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,21 +74,31 @@ public class MainActivity extends ProgressBarActivity {
         findViewById(R.id.qr_code_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if ( ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CAMERA)
+                if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CAMERA)
                         != PackageManager.PERMISSION_GRANTED) {
                     cameraPermissionRequest();
                     Log.d(TAG, "onClick: Request camera permission");
-                }else {
+                } else {
                     startCapturingCode();
                 }
             }
         });
 
+
+        ImageView nfc = (ImageView) findViewById(R.id.nfc_button);
+        if (isNFCAvailable()) {
+            nfc.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startActivityForResult(new Intent(MainActivity.this, NfcActivity.class), NFC_REQUEST);
+                }
+            });
+        }
+
         Bundle b = getIntent().getExtras();
         if (b != null){
-            currentBalance = Float.valueOf(b.getString(PropertyFields.BALANCE, "0"));
-            serverBalance = currentBalance;
-            email = b.getString(PropertyFields.EMAIL);
+            email = b.getString(EMAIL_KEY);
+            macAddr = b.getString(MACADDR_KEY);
         }
 
 /*TODO REMOVE*//*
@@ -93,43 +110,28 @@ public class MainActivity extends ProgressBarActivity {
         uploadToServer(t);
 /*REMOVE*/
 
-
-        Log.d(TAG, "Balance from the Server:" + currentBalance);
-        TransactionDataSource db = ((CashlessApplication)getApplication()).getDbAccess();
-        if (db == null){
-            db = new TransactionDataSource(getApplication().getApplicationContext());
-            ((CashlessApplication)getApplication()).setTransactionAccess(db);
-        } else {
-            currentBalance -= db.getBalanceDeltaFromAllTransactions();
-        }
-
-        if (currentBalance < 0){
-            currentBalance = 0;
-        }
-        setDataFromModel();
-        Log.d(TAG, "Local balance:" + currentBalance);
-
-        Transaction[] transactions = ((CashlessApplication)getApplication()).getDbAccess().getTransactions();
-        if ( transactions != null ) {
-            uploadToServer(transactions);
-            serverBalance = currentBalance;
-        }
-
         setupCommunication();
 
-        if (Constants.DEBUG != 0){
+        if (MACADDR_KEY != null){
+            connect(macAddr);
+        }
+
+        if (Constants.DEBUG != 0 && MACADDR_KEY == null){
             //currentBalance = 10002;
             connect("10:14:07:10:29:10");
         }
     }
 
+    private boolean isNFCAvailable(){
+        return (NfcAdapter.getDefaultAdapter(this) == null) ? false: true;
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
-        currentBalance = serverBalance - ((CashlessApplication)getApplication()).getDbAccess().getBalanceDeltaFromAllTransactions();
-        Log.d(TAG, String.format("OnResume: server=%5d local=%5d", (int)serverBalance, (int)currentBalance));
         setDataFromModel();
     }
+
 
     /*Setup communication chain*/
     private void setupCommunication() {
@@ -165,24 +167,6 @@ public class MainActivity extends ProgressBarActivity {
         blueToothControl.registerOnRawData((Communication.DataCallback) cd);
         cd.registerOnPacketListener((CommandInterfaceImpl)comm);
 
-    }
-
-    private void uploadToServer(Transaction[] transactions){
-        for (final Transaction tr : transactions){
-            AsyncSendTransaction aT = new AsyncSendTransaction(tr, new OnAsyncServerRequest(){
-
-                @Override
-                public void OnOk(Bundle bundle) {
-                    ((CashlessApplication)getApplication()).getDbAccess().deleteTransaction(tr);
-                }
-
-                @Override
-                public void OnError(String msg) {
-
-                }
-            });
-            aT.execute();
-        }
     }
 
     @Override
@@ -236,9 +220,21 @@ public class MainActivity extends ProgressBarActivity {
             } else {
                 blueToothControl.onDeviceEnabled();
             }
+        } else if (requestCode == NFC_REQUEST){
+            if (resultCode == Activity.RESULT_OK){
+                connect(data.getStringExtra(MAC_ADDR));
+            }
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        ((CashlessApplication)getApplication()).getLocalStorage().setHashKey(null);
+        startActivity(new Intent(MainActivity.this, LoginActivity.class));
+        finish();
     }
 
     @Override
@@ -272,7 +268,7 @@ public class MainActivity extends ProgressBarActivity {
             return;
         }
 
-        if (blueToothControl.isConnected() == false) {
+        if (!blueToothControl.isConnected()) {
             blueToothControl.addAsyncResponseListener(new BTOpenPortStatus() {
                 @Override
                 public void onBTOpenPortDone() {
@@ -297,10 +293,7 @@ public class MainActivity extends ProgressBarActivity {
 
     public void onConnect() {
         Bundle b = new Bundle();
-        b.putString(PropertyFields.BALANCE,  String.valueOf(currentBalance));
         b.putString(PropertyFields.EMAIL, email);
-
-        Log.d(TAG, String.format("Start activity with balance %5d", (int)currentBalance));
 
         Intent intent = new Intent(MainActivity.this, SuccessfulConnectActivity.class);
         intent.putExtras(b);
@@ -309,6 +302,10 @@ public class MainActivity extends ProgressBarActivity {
     }
 
     private void setDataFromModel() {
-        balance.setText(String.format("%5d", (int)currentBalance));
+        final int b = ((CashlessApplication)getApplication()).getBalanceUpdater().getBalance();
+        balance.setText(String.format("%5d", b));
+        Log.d(TAG, String.format("Balance on Screen = %5d", b));
+
+        ((CashlessApplication)getApplication()).getLocalStorage().setLocalBalance(String.format("%5d", b));
     }
 }

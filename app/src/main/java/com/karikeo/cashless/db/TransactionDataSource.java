@@ -11,7 +11,7 @@ import android.util.Log;
 import java.util.Calendar;
 
 public class TransactionDataSource {
-    private static final String TAG = "com.karikeo.cashless.db.TransactionDataSource";
+    private static final String TAG = "TransactionDataSource";
 
     private SQLiteDatabase database;
     private TransactionsSQLHelper dbHelper;
@@ -20,7 +20,11 @@ public class TransactionDataSource {
             TransactionsSQLHelper.COLUMN_MACADDR,
             TransactionsSQLHelper.COLUMN_DATE,
             TransactionsSQLHelper.COLUMN_BALANCE_DELTA,
-            TransactionsSQLHelper.COLUMN_EMAIL};
+            TransactionsSQLHelper.COLUMN_EMAIL,
+            TransactionsSQLHelper.COLUMN_SENT};
+
+    private final int FALSE = 0;
+    private final int TRUE = 1;
 
 
     public TransactionDataSource(Context context){
@@ -46,6 +50,7 @@ public class TransactionDataSource {
         values.put(TransactionsSQLHelper.COLUMN_MACADDR, macAddr);
         values.put(TransactionsSQLHelper.COLUMN_DATE, Integer.toString(Calendar.getInstance().get(Calendar.SECOND)));
         values.put(TransactionsSQLHelper.COLUMN_EMAIL, email);
+        values.put(TransactionsSQLHelper.COLUMN_SENT, FALSE);
 
         long insertId = database.insert(TransactionsSQLHelper.TABLE_TRANSACTION, null, values);
 
@@ -66,14 +71,16 @@ public class TransactionDataSource {
     }
 
     public Float getBalanceDeltaFromAllTransactions(){
-        if (!database.isOpen())
+        if (database == null || !database.isOpen())
             open();
 
         Cursor cursor = null;
         String sum = null;
         try {
             //cursor = database.rawQuery("SELECT SUM(?) FROM ?", new String[]{TransactionsSQLHelper.COLUMN_BALANCE_DELTA, TransactionsSQLHelper.TABLE_TRANSACTION});
-            cursor = database.rawQuery("SELECT SUM(" + TransactionsSQLHelper.COLUMN_BALANCE_DELTA + ") FROM " + TransactionsSQLHelper.TABLE_TRANSACTION, new String[]{});
+            //cursor = database.rawQuery("SELECT SUM(" + TransactionsSQLHelper.COLUMN_BALANCE_DELTA + ") FROM " + TransactionsSQLHelper.TABLE_TRANSACTION + , new String[]{});
+            cursor = database.rawQuery(String.format("SELECT SUM(%s) FROM %s WHERE %s = %d", TransactionsSQLHelper.COLUMN_BALANCE_DELTA, TransactionsSQLHelper.TABLE_TRANSACTION,
+                    TransactionsSQLHelper.COLUMN_SENT, FALSE), new String[]{});
             if (cursor.getCount() > 0) {
                 cursor.moveToFirst();
                 sum = cursor.getString(0);
@@ -97,9 +104,14 @@ public class TransactionDataSource {
         Transaction[] transactions = null;
         Cursor cursor = null;
         try{
-            cursor = database.rawQuery("SELECT * FROM "+ TransactionsSQLHelper.TABLE_TRANSACTION, new String[]{});
+            cursor = database.rawQuery(String.format("SELECT * FROM %s WHERE %s = %d",
+                    TransactionsSQLHelper.TABLE_TRANSACTION,
+                    TransactionsSQLHelper.COLUMN_SENT,
+                    0), new String[]{});
+            //cursor = database.rawQuery("SELECT * FROM "+ TransactionsSQLHelper.TABLE_TRANSACTION, new String[]{});
 
             final int num = cursor.getCount();
+            Log.d(TAG, String.format("getTransactions: num of transactions:%s", String.valueOf(num)));
 
             if ( num == 0){
                 closeCursor(cursor);
@@ -117,6 +129,7 @@ public class TransactionDataSource {
             closeCursor(cursor);
         }
 
+
         return transactions;
     }
 
@@ -124,6 +137,33 @@ public class TransactionDataSource {
         if (cursor!=null){
             cursor.close();
         }
+    }
+
+    public boolean updateSent(Transaction transaction, int sent){
+        if (database == null || !database.isOpen())
+            open();
+
+        boolean flg = false;
+
+        Cursor cursor = null;
+        try {
+            //cursor = database.rawQuery("SELECT SUM(?) FROM ?", new String[]{TransactionsSQLHelper.COLUMN_BALANCE_DELTA, TransactionsSQLHelper.TABLE_TRANSACTION});
+            //cursor = database.rawQuery("SELECT SUM(" + TransactionsSQLHelper.COLUMN_BALANCE_DELTA + ") FROM " + TransactionsSQLHelper.TABLE_TRANSACTION + , new String[]{});
+            cursor = database.rawQuery(String.format("UPDATE %s SET %s = %d WHERE %s = %d",
+                    TransactionsSQLHelper.TABLE_TRANSACTION,
+                    TransactionsSQLHelper.COLUMN_SENT,
+                    sent,
+                    TransactionsSQLHelper.COLUMN_ID,
+                    transaction.getId()), new String[]{});
+            if (cursor.getCount() > 0) {
+                flg = true;
+            }
+        }
+        finally {
+            closeCursor(cursor);
+        }
+
+        return flg;
     }
 
     public void deleteTransaction(Transaction transaction){
@@ -141,6 +181,7 @@ public class TransactionDataSource {
         t.setDate(cursor.getString(3));
         t.setBalanceDelta(cursor.getString(4));
         t.setEmail(cursor.getString(5));
+        t.setSent(cursor.getInt(6));
 
         return t;
     }

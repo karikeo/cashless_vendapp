@@ -26,4 +26,6 @@
     <string name="connected_to_machine">Connected to Machine</string>
     <string name="disconnect">Disconnect</string>
     <string name="by">by</string>
+
+    <string name="nfc_tag_error">Unknown NFC tag.</string>
 </resources>

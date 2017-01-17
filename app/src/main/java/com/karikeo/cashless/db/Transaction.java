@@ -32,12 +32,14 @@ public class Transaction {
             }
         }
     }
+
     private long id;
     private String macAddress;
     private String date;
     private String balanceDelta;
     private String email;
     private TYPE type;
+    private int sent;
 
     public long getId() {
         return id;
@@ -80,5 +82,12 @@ public class Transaction {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public void setSent(int sent){
+        this.sent = sent;
+    }
+    public int getSent(){
+        return sent;
     }
 }
