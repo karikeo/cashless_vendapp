@@ -6,12 +6,17 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.nfc.NfcAdapter;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -69,22 +74,26 @@ public class MainActivity extends ProgressBarActivity {
         findViewById(R.id.qr_code_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if ( ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CAMERA)
+                if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CAMERA)
                         != PackageManager.PERMISSION_GRANTED) {
                     cameraPermissionRequest();
                     Log.d(TAG, "onClick: Request camera permission");
-                }else {
+                } else {
                     startCapturingCode();
                 }
             }
         });
 
-        findViewById(R.id.nfc_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivityForResult(new Intent(MainActivity.this, NfcActivity.class), NFC_REQUEST);
-            }
-        });
+
+        ImageView nfc = (ImageView) findViewById(R.id.nfc_button);
+        if (isNFCAvailable()) {
+            nfc.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startActivityForResult(new Intent(MainActivity.this, NfcActivity.class), NFC_REQUEST);
+                }
+            });
+        }
 
         Bundle b = getIntent().getExtras();
         if (b != null){
@@ -111,6 +120,10 @@ public class MainActivity extends ProgressBarActivity {
             //currentBalance = 10002;
             connect("10:14:07:10:29:10");
         }
+    }
+
+    private boolean isNFCAvailable(){
+        return (NfcAdapter.getDefaultAdapter(this) == null) ? false: true;
     }
 
     @Override

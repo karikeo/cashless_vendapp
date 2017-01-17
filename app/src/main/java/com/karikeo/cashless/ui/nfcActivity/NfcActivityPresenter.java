@@ -54,8 +54,7 @@ public class NfcActivityPresenter implements NfcActivityContract.Action, NfcActi
     @Override
     public void onResume() {
         if (nfcAdapter == null){
-            //can't work without adapter.
-            //Maybe add this check to the MainWindow and disable button in case of.
+            listener.finishWithNoResults();
             return;
         }
 
