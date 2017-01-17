@@ -5,7 +5,7 @@
     <string name="login_button">login</string>
     <string name="vendapp">VendApp</string>
     <string name="update_balance">Actualizando Saldo…</string>
-    <string name="logging_in">Iniciando Session…</string>
+    <string name="logging_in">Ingresando…</string>
 
     <string name="your_balance">mi Saldo</string>
     <string name="nfc_button">parear NFC</string>

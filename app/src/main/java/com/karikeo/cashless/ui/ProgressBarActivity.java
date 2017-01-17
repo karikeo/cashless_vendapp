@@ -13,8 +13,8 @@ import com.karikeo.cashless.R;
 public abstract class ProgressBarActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private TextView progressText;
-    private ViewGroup content;
     private View progress;
+    private View shadow;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,9 +23,10 @@ public abstract class ProgressBarActivity extends AppCompatActivity {
 
         progressBar = (ProgressBar) findViewById(R.id.progress_bar);
         progressText = (TextView) findViewById(R.id.progress_text);
-        content = (ViewGroup) findViewById(R.id.content);
         progress = findViewById(R.id.progress);
+        shadow = findViewById(R.id.shadow);
 
+        ViewGroup content = (ViewGroup) findViewById(R.id.content);
         content.addView(LayoutInflater.from(this).inflate(getLayoutId(), null));
     }
 
@@ -38,13 +39,13 @@ public abstract class ProgressBarActivity extends AppCompatActivity {
     protected abstract int getLayoutId();
 
     protected void showContent() {
-        content.setVisibility(View.VISIBLE);
+        shadow.setVisibility(View.GONE);
         progress.setVisibility(View.GONE);
         progressText.setText(R.string.empty);
     }
 
     protected void showProgress(int message) {
-        content.setVisibility(View.GONE);
+        shadow.setVisibility(View.VISIBLE);
         progress.setVisibility(View.VISIBLE);
         progressText.setText(message);
     }

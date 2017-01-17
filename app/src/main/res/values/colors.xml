@@ -6,6 +6,8 @@
     <color name="base_02">#303030</color>
     <color name="base_03">#F07567</color>
 
+    <color name="opacity_80">#CCFFFFFF</color>
+
     <color name="text_base">#FFFFFF</color>
     <color name="text_01">#000000</color>
 
