@@ -3,9 +3,8 @@ package com.karikeo.cashless.protocol;
 
 import android.util.Log;
 
-import com.karikeo.cashless.bt.CommInterface;
 import com.karikeo.cashless.bt.OutputStream;
-import com.karikeo.cashless.db.Transaction;
+import com.karikeo.cashless.model.Transaction;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;

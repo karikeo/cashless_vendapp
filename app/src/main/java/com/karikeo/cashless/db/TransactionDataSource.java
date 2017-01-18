@@ -8,14 +8,17 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import com.karikeo.cashless.model.Transaction;
+
 import java.util.Calendar;
 
 public class TransactionDataSource {
     private static final String TAG = "TransactionDataSource";
-
+    private final int FALSE = 0;
+    private final int TRUE = 1;
     private SQLiteDatabase database;
     private TransactionsSQLHelper dbHelper;
-    private String[] allColumns = { TransactionsSQLHelper.COLUMN_ID,
+    private String[] allColumns = {TransactionsSQLHelper.COLUMN_ID,
             TransactionsSQLHelper.COLUMN_TRANSACTION_TYPE,
             TransactionsSQLHelper.COLUMN_MACADDR,
             TransactionsSQLHelper.COLUMN_DATE,
@@ -23,24 +26,21 @@ public class TransactionDataSource {
             TransactionsSQLHelper.COLUMN_EMAIL,
             TransactionsSQLHelper.COLUMN_SENT};
 
-    private final int FALSE = 0;
-    private final int TRUE = 1;
 
-
-    public TransactionDataSource(Context context){
+    public TransactionDataSource(Context context) {
         dbHelper = new TransactionsSQLHelper(context);
     }
 
-    public void open() throws SQLException{
+    public void open() throws SQLException {
         database = dbHelper.getWritableDatabase();
     }
 
-    public void close(){
+    public void close() {
         dbHelper.close();
     }
 
-    public Transaction createTransaction(final String tType, final String balanceDelta, final String macAddr, String email){
-        if ( database == null || !database.isOpen() )
+    public Transaction createTransaction(final String tType, final String balanceDelta, final String macAddr, String email) {
+        if (database == null || !database.isOpen())
             open();
 
         ContentValues values = new ContentValues();
@@ -54,7 +54,7 @@ public class TransactionDataSource {
 
         long insertId = database.insert(TransactionsSQLHelper.TABLE_TRANSACTION, null, values);
 
-        if (insertId == -1){
+        if (insertId == -1) {
             Log.e(TAG, "Can't insert Transaction.");
             return null;
         }
@@ -67,10 +67,10 @@ public class TransactionDataSource {
         cursor.moveToFirst();
         Transaction newTransaction = cursorToTransaction(cursor);
         cursor.close();
-        return  newTransaction;
+        return newTransaction;
     }
 
-    public Float getBalanceDeltaFromAllTransactions(){
+    public Float getBalanceDeltaFromAllTransactions() {
         if (database == null || !database.isOpen())
             open();
 
@@ -85,25 +85,24 @@ public class TransactionDataSource {
                 cursor.moveToFirst();
                 sum = cursor.getString(0);
             }
-        }
-        finally {
+        } finally {
             closeCursor(cursor);
         }
-        if (sum == null){
+        if (sum == null) {
             sum = "0";
         }
 
         return Float.valueOf(sum);
     }
 
-    public Transaction[] getTransactions(){
-        if ( database == null || !database.isOpen() ){
+    public Transaction[] getTransactions() {
+        if (database == null || !database.isOpen()) {
             open();
         }
 
         Transaction[] transactions = null;
         Cursor cursor = null;
-        try{
+        try {
             cursor = database.rawQuery(String.format("SELECT * FROM %s WHERE %s = %d",
                     TransactionsSQLHelper.TABLE_TRANSACTION,
                     TransactionsSQLHelper.COLUMN_SENT,
@@ -113,19 +112,19 @@ public class TransactionDataSource {
             final int num = cursor.getCount();
             Log.d(TAG, String.format("getTransactions: num of transactions:%s", String.valueOf(num)));
 
-            if ( num == 0){
+            if (num == 0) {
                 closeCursor(cursor);
                 return transactions;
             }
 
             transactions = new Transaction[num];
 
-            for (int i = 0; i<num; i++){
+            for (int i = 0; i < num; i++) {
                 cursor.moveToPosition(i);
                 transactions[i] = cursorToTransaction(cursor);
             }
 
-        }finally {
+        } finally {
             closeCursor(cursor);
         }
 
@@ -134,12 +133,12 @@ public class TransactionDataSource {
     }
 
     private void closeCursor(Cursor cursor) {
-        if (cursor!=null){
+        if (cursor != null) {
             cursor.close();
         }
     }
 
-    public boolean updateSent(Transaction transaction, int sent){
+    public boolean updateSent(Transaction transaction, int sent) {
         if (database == null || !database.isOpen())
             open();
 
@@ -158,22 +157,21 @@ public class TransactionDataSource {
             if (cursor.getCount() > 0) {
                 flg = true;
             }
-        }
-        finally {
+        } finally {
             closeCursor(cursor);
         }
 
         return flg;
     }
 
-    public void deleteTransaction(Transaction transaction){
+    public void deleteTransaction(Transaction transaction) {
         long id = transaction.getId();
         Log.w(TAG, "delete with id=" + Long.toString(id));
 
         database.delete(TransactionsSQLHelper.TABLE_TRANSACTION, TransactionsSQLHelper.COLUMN_ID + " = " + id, null);
     }
 
-    private Transaction cursorToTransaction(Cursor cursor){
+    private Transaction cursorToTransaction(Cursor cursor) {
         Transaction t = new Transaction();
         t.setId(cursor.getLong(0));
         t.setType(Transaction.TYPE.fromString(cursor.getString(1)));

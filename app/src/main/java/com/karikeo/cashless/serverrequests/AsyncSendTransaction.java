@@ -3,7 +3,7 @@ package com.karikeo.cashless.serverrequests;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.karikeo.cashless.db.Transaction;
+import com.karikeo.cashless.model.Transaction;
 
 import java.util.Map;
 

@@ -1,4 +1,4 @@
-package com.karikeo.cashless.db;
+package com.karikeo.cashless.model;
 
 
 public class Transaction {

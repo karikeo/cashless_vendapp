@@ -7,10 +7,15 @@ import android.util.Log;
 
 
 public class InternetStatus {
+    private static Context context;
 
     private InternetStatus(){}
 
-    public static boolean isOnline(Context context) {
+    public static void setAppContext(Context c){
+        context = c;
+    }
+
+    public static boolean isOnline() {
 
         boolean connected = false;
 

@@ -5,22 +5,33 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 
-import com.karikeo.cashless.db.Transaction;
+import com.karikeo.cashless.db.DatabaseRepository;
+import com.karikeo.cashless.model.Transaction;
 import com.karikeo.cashless.model.InternetStatus;
 import com.karikeo.cashless.model.localstorage.LocalStorage;
+
+import javax.inject.Inject;
 
 public class ServerRepositoryImpl implements ServerRepository{
 
     private final static String TAG = ServerRepositoryImpl.class.getSimpleName();
 
+    @Inject
     LocalStorage localStorage;
+
+    @Inject
     Context context;
+
+    @Inject
+    DatabaseRepository databaseRepo;
+
+
     ServerRepository.Response listener;
 
 
     @Override
     public void login(@NonNull String email, @NonNull String pwd) {
-        if (!InternetStatus.isOnline(context)){
+        if (!InternetStatus.isOnline()){
             onError("No Internet Connection");
             return;
         }
@@ -31,9 +42,10 @@ public class ServerRepositoryImpl implements ServerRepository{
     }
 
     @Override
-    public void isLogged() {
+    public boolean isLogged() {
         //check hash is available
         //check hash is valid
+        return false;
     }
 
     @Override
@@ -49,12 +61,12 @@ public class ServerRepositoryImpl implements ServerRepository{
 
     @Override
     public void addTransaction(@NonNull Transaction t) {
-
+        //add transaction to the DB
     }
 
     @Override
-    public void getLastTransactions(int num) {
-
+    public void getPendingTransactions() {
+        //return all pending transactions from the DB
     }
 
     @Override

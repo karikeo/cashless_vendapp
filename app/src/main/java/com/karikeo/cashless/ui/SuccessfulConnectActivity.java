@@ -9,7 +9,7 @@ import android.widget.TextView;
 
 import com.karikeo.cashless.CashlessApplication;
 import com.karikeo.cashless.R;
-import com.karikeo.cashless.db.Transaction;
+import com.karikeo.cashless.model.Transaction;
 import com.karikeo.cashless.db.TransactionDataSource;
 import com.karikeo.cashless.protocol.CommandInterface;
 import com.karikeo.cashless.protocol.CommandInterfaceImpl;

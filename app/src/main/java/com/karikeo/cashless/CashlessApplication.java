@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 
 import com.karikeo.cashless.bt.CommInterface;
 import com.karikeo.cashless.db.TransactionDataSource;
+import com.karikeo.cashless.model.InternetStatus;
 import com.karikeo.cashless.model.localstorage.LocalStorage;
 import com.karikeo.cashless.model.localstorage.LocalStorageImpl;
 import com.karikeo.cashless.protocol.CoderDecoderInterface;
@@ -55,6 +56,8 @@ public class CashlessApplication extends Application{
         setBalanceUpdater(b);
 
         storage = new LocalStorageImpl(this.getSharedPreferences("cashlessapp", MODE_PRIVATE));
+
+        InternetStatus.setAppContext(this);
     }
 
     @Override
