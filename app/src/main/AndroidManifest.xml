@@ -38,7 +38,7 @@
         <activity
             android:name=".ui.MainActivity"
             android:screenOrientation="sensorPortrait"
-            android:theme="@style/Theme.AppCompat" />
+            android:theme="@style/Theme.AppCompat.Light" />
         <activity
             android:name=".ui.barcode.BarcodeCaptureActivity"
             android:screenOrientation="sensorPortrait" />
