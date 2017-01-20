@@ -13,10 +13,12 @@ public class AsyncSerialToMac extends AsyncRequest {
     private static final String METHOD_NAME = "GetVendicontMAC";
 
     final String serial;
+    final OnAsyncServerRequest listener;
 
-    public AsyncSerialToMac(@NonNull final String serial){
+    public AsyncSerialToMac(@NonNull final String serial,  OnAsyncServerRequest request){
         super(METHOD_NAME);
         this.serial = serial;
+        listener = request;
     }
 
 

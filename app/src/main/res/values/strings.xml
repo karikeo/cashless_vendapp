@@ -27,5 +27,6 @@
     <string name="disconnect">Disconnect</string>
     <string name="by">by</string>
 
-    <string name="nfc_tag_error">Unknown NFC tag.</string>
+    <string name="nfc_tag_error">Unknown NFC tag</string>
+    <string name="serial_error">Unknown serial number</string>
 </resources>
