@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.karikeo.cashless.BuildConfig;
 import com.karikeo.cashless.Constants;
 
 import org.ksoap2.SoapEnvelope;
@@ -61,13 +62,13 @@ abstract class AsyncRequest {
 
             HttpTransportSE androidHttpTransport = new HttpTransportSE(URL);
             try {
-                if (Constants.DEBUG != 0) {
+                if (BuildConfig.DEBUG) {
                     androidHttpTransport.debug = true;
                 }
 
                 androidHttpTransport.call(SOAP_ACTION, envelope);
 
-                if (Constants.DEBUG != 0) {
+                if (BuildConfig.DEBUG) {
                     Log.d(TAG, new StringBuilder("request: ").append(androidHttpTransport.requestDump).toString());
                     Log.d(TAG, new StringBuilder("response: ").append(androidHttpTransport.responseDump).toString());
                 }

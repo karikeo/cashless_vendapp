@@ -38,6 +38,7 @@ import com.karikeo.cashless.protocol.CommandInterfaceImpl;
 import com.karikeo.cashless.serverrequests.PropertyFields;
 import com.karikeo.cashless.ui.barcode.BarcodeCaptureActivity;
 import com.karikeo.cashless.ui.nfcActivity.NfcActivity;
+import com.karikeo.cashless.ui.serialAcrivity.SerialActivity;
 
 import static com.karikeo.cashless.ui.nfcActivity.NfcActivity.MAC_ADDR;
 
@@ -50,6 +51,7 @@ public class MainActivity extends ProgressBarActivity {
     private static final int PM_BT_PERMISSION_REQUEST = 0x9003;
 
     private static final int NFC_REQUEST = 0x9100;
+    private static final int SERIAL_REQUEST = 0x9101;
 
     private static String[] PERMISSIONS_BT = {Manifest.permission.BLUETOOTH,
             Manifest.permission.BLUETOOTH_ADMIN};
@@ -81,6 +83,13 @@ public class MainActivity extends ProgressBarActivity {
                 } else {
                     startCapturingCode();
                 }
+            }
+        });
+
+        findViewById(R.id.serial_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivityForResult(new Intent(MainActivity.this, SerialActivity.class), SERIAL_REQUEST);
             }
         });
 
@@ -220,10 +229,15 @@ public class MainActivity extends ProgressBarActivity {
             } else {
                 blueToothControl.onDeviceEnabled();
             }
-        } else if (requestCode == NFC_REQUEST){
-            if (resultCode == Activity.RESULT_OK){
+        } else if (requestCode == NFC_REQUEST) {
+            if (resultCode == Activity.RESULT_OK) {
                 connect(data.getStringExtra(MAC_ADDR));
             }
+        }else if (requestCode == SERIAL_REQUEST){
+            if (resultCode == Activity.RESULT_OK){
+                connect(data.getStringExtra(PropertyFields.SERIALMAC));
+            }
+
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }

@@ -50,6 +50,10 @@ public abstract class ProgressBarActivity extends AppCompatActivity {
         progressText.setText(message);
     }
 
+    protected void showToolTip(int message){
+
+    }
+
     protected void setProgressPercent(int progress) {
         progressBar.setProgress(progress);
     }

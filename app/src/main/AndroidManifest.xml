@@ -50,6 +50,8 @@
             android:screenOrientation="sensorPortrait" />
         <activity android:name=".ui.nfcActivity.NfcActivity"
             android:screenOrientation="sensorPortrait" />
+        <activity android:name=".ui.serialAcrivity.SerialActivity"
+            android:screenOrientation="sensorPortrait" />
     </application>
 
 </manifest>

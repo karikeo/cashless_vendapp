@@ -29,4 +29,7 @@
 
     <string name="nfc_tag_error">Unknown NFC tag</string>
     <string name="serial_error">Unknown serial number</string>
+
+    <string name="serial">Enter Serial Number</string>
+    <string name="serial_request">connect</string>
 </resources>

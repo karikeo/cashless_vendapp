@@ -34,7 +34,7 @@ public class AsyncSerialToMac extends AsyncRequest {
             return;
         }
 
-        final String mac = bundle.getString(PropertyFields.SERIAL);
+        final String mac = bundle.getString(PropertyFields.SERIALMAC);
         if (mac == null){
             sendError("Can not find known parameter");
             return;

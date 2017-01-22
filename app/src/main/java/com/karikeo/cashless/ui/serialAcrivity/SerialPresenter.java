@@ -29,16 +29,24 @@ public class SerialPresenter implements SerialContract.UserAction, SerialContrac
         new AsyncSerialToMac(serial, new OnAsyncServerRequest() {
             @Override
             public void OnOk(@Nullable Bundle bundle) {
-                listener.finishWithResult(RESULT_OK, bundle.getString(PropertyFields.SERIAL));
+                final String result = bundle.getString(PropertyFields.SERIALMAC);
+                if (result != null) {
+                    listener.finishWithResult(RESULT_OK, result);
+                }else {
+                    //TODO: Set appropriate error msg
+                    listener.hideProgressDialog();
+                    listener.showErrorHint(R.string.serial_error);
+                }
             }
 
             @Override
             public void OnError(String msg) {
                 //If troubles with network?
+                listener.hideProgressDialog();
                 listener.showErrorHint(R.string.serial_error);
             }
         }).execute();
 
-        listener.hideProgressDialog();
+//        listener.hideProgressDialog();
     }
 }

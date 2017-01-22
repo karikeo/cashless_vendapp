@@ -25,4 +25,7 @@
     <string name="disconnect">Desconectar</string>
     <string name="by">by</string>
 
+    <string name="serial">escriba la Serie</string>
+    <string name="serial_request">conectar</string>
+
 </resources>
