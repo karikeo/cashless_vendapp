@@ -129,6 +129,10 @@ public class MainActivity extends ProgressBarActivity {
             //currentBalance = 10002;
             connect("10:14:07:10:29:10");
         }
+
+        getSupportActionBar().setDisplayUseLogoEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setLogo(R.drawable.vendomatica_cashless_hor);
     }
 
     private boolean isNFCAvailable(){
