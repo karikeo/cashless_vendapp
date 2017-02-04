@@ -105,7 +105,7 @@ public class LoginActivity extends ProgressBarActivity {
 
             @Override
             public void onError() {
-                Log.d(TAG, String.format("Can't login to the server"));
+                Log.d(TAG, "Can't login to the server");
                 showContent();
             }
         });

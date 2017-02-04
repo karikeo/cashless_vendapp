@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.karikeo.cashless.R;
 
@@ -50,8 +51,17 @@ public abstract class ProgressBarActivity extends AppCompatActivity {
         progressText.setText(message);
     }
 
-    protected void showToolTip(int message){
+    protected void showToolTip(CharSequence message){
+        View layout = getLayoutInflater().inflate(R.layout.custom_toast,
+                (ViewGroup) findViewById(R.id.custom_toast_container));
 
+        TextView text = (TextView) layout.findViewById(R.id.text);
+        text.setText(message);
+
+        Toast toast = new Toast(getApplicationContext());
+        toast.setDuration(Toast.LENGTH_LONG);
+        toast.setView(layout);
+        toast.show();
     }
 
     protected void setProgressPercent(int progress) {
